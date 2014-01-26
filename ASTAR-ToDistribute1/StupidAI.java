@@ -12,88 +12,96 @@ import java.util.List;
  */
 public class StupidAI implements AIModule
 {
-    public Point getNodeWithLowestFCostInOpenSet(final TerrainMap map, final ArrayList<Point> openSet){
-        Iterator itr = openSet.iterator();
-        
-        while (itr.hasNext()){//
-            map.getcost
-        }
+    // Nested class to facilitate the reference between the points and its path-cost
+    static class Node{
+	public Point point;
+	public Point cameFrom;
+	public double g;
+	public double f;
+
+	// TO-DO: straight 3-D line 
+	public double calculatesF(double g, Point point){
+	    return g;// uniform-cost search for now
+       	}
+
+	// Constructs and initializes a node at the initialization point and with some pre-defined g value.
+	public Node(Point initPoint, double gInit){
+	    this.point = new Point(initPoint);
+	    this.cameFrom = new Point(initPoint);
+	    this.g = 0.0;
+	    this.f = this.calculatesF(this.g, this.point);
+	}
+	
+	// Constructs and initializes a node with values from another node.
+	public Node(StupidAI.Node node){
+	    this.point = new Point(node.point);
+	    this.cameFrom = new Point(node.cameFrom);
+	    this.g = node.g;
+	    this.f = node.f;
+	}
+	
+	// Constructs and initializes a node with empty/null values.
+	public Node(){
+	    this.point = new Point();
+	    this.cameFrom = new Point();
+	    this.g = 0.0;
+	    this.f = 0.0;
+	}
+
+	// Calculates and sets the values to perform the successor function
+	public void setValues(Point newPoint, StupidAI.Node node, double step_cost){
+	    this.point.setLocation(newPoint);
+	    this.cameFrom.setLocation(node.point);
+	    this.g = node.g + step_cost;
+	    this.f = this.calculatesF(this.g, this.point);
+
+	    return;
+	}
+
+	// Copies the values from another node
+	public void copyNode(Node newNode){
+	    this.point.setLocation(newNode.point);
+	    this.cameFrom = newNode.cameFrom;
+	    this.g = newNode.g;
+	    this.f = newNode.f;
+
+	    return;
+	}
     }
     
-    // A-star attempt
     public List<Point> createPath(final TerrainMap map){
-        
-        // initializations
-        final Point EndPoint = map.getEndPoint();
-        final ArrayList<Point> openSet = new ArrayList<Point>();
-        final ArrayList<Point> closedSet = new ArrayList<Point>();
-        final ArrayList<Point> path = new ArrayList<Point>();
-        final ArrayList<Point> Neighbors = new ArrayList<Point>();
-        int g = 0;
-        openSet.add(new Point(map.getStartPoint()));
-        
-        while (!openSet.isEmpty()){
-            current = getNodeWithLowestFCostInOpenSet(map, openSet);
-            if (current == EndPoint){
-                path.add(current);
-                return path;
-            }
-            openSet.remove(current);
-            closedSet.add(current);
-            
-            tentative_g_score = g + map.getCost(current, EndPoint);
-            
-            Neighbors = map.getNeighbors(current);
-            Iterator itr = Neighbors.iterator();
-            while(itr.hasNext()){
-                Point neighbor = itr.next();
-                if (closedSet.contains(neighbor)) {
-                    continue
-                }
-                
-                
-            }
-        }
-        
-        
-        
-        
+	StupidAI.Node node = new StupidAI.Node(map.getStartPoint(), 0.0);
+	StupidAI.Node child = new StupidAI.Node();
+	final ArrayList<StupidAI.Node> frontier = new ArrayList<StupidAI.Node>();
+	frontier.add(new StupidAI.Node(node));
+	final ArrayList<StupidAI.Node> explored = new ArrayList<StupidAI.Node>();
+	Point neighbors[] = new Point[8];
+
+	while(!frontier.isEmpty()){
+	    node.copyNode(frontier.remove(0));
+	    if (node.point.equals(map.getEndPoint())){
+		explored.add(new StupidAI.Node(node));
+		return this.reconstructPath(explored);// TO-DO
+	    }
+	    explored.add(new StupidAI.Node(node));
+	    neighbors = map.getNeighbors(node.point);
+	    for(int i=0; i<8; i++){
+		child.setValues(neighbors[i], node, map.getCost(node.point, child.point));
+		if (!frontier.contains(child) && !explored.contains(child)){// TO-DO
+		    frontier.add(new StupidAI.Node(child));
+		}
+	    }
+	}
+
+	return null;// failure
     }
-    
-    /// Creates the path to the goal.
-    public List<Point> createPath(final TerrainMap map)
-    {
-        // Holds the resulting path
-        final ArrayList<Point> path = new ArrayList<Point>();
 
-        // Keep track of where we are and add the start point.
-        final Point CurrentPoint = map.getStartPoint();
-        final Point FinalPoint = map.getEndPoint();
-        path.add(new Point(CurrentPoint));
+    // TO-DO: see http://en.wikipedia.org/wiki/A*_search_algorithm
+    public List<Point> reconstructPath(ArrayList<StupidAI.Node> explored){
+	List<Point> path = new ArrayList<Point>();
 
-        Point Neighbors[] = map.getNeighbors(CurrentPoint);
-        
-        // Keep moving horizontally until we match the target.
-        while(map.getEndPoint().x != CurrentPoint.x)
-        {
-            if(map.getEndPoint().x > CurrentPoint.x)
-                ++CurrentPoint.x;
-            else
-                --CurrentPoint.x;
-            path.add(new Point(CurrentPoint));
-        }
-
-        // Keep moving vertically until we match the target.
-        while(map.getEndPoint().y != CurrentPoint.y)
-        {
-            if(map.getEndPoint().y > CurrentPoint.y)
-                ++CurrentPoint.y;
-            else
-                --CurrentPoint.y;
-            path.add(new Point(CurrentPoint));
-        }
-
-        // We're done!  Hand it back.
-        return path;
+	// construct path using cameFrom property
+	
+	return path;
     }
 }
