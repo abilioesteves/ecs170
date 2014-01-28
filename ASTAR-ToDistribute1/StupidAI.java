@@ -2,14 +2,8 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-/// A sample AI that takes a very suboptimal path.
-/**
- * This is a sample AI that moves as far horizontally as necessary to reach the target,
- * then as far vertically as necessary to reach the target.  It is intended primarily as
- * a demonstration of the various pieces of the program.
- * 
- * @author Leonid Shamis
- */
+// A* implementation
+// @authors: Abilio Oliveira and James Ryden
 public class StupidAI implements AIModule
 {
     // Nested class to facilitate the reference between the points and its path-cost
