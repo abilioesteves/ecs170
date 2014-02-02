@@ -22,11 +22,18 @@ public class StupidAI implements AIModule
 	 *@return h The value of the best case cost between pt1 and pt2.
 	 */
 	public double getHeuristics(final TerrainMap map, final Point pt1, final Point pt2){
-	    double hight_difference = map.getTile(pt2) - map.getTile(pt1);
 	    int y_difference = pt2.y - pt1.y;
 	    int x_difference = pt2.x - pt1.x;
-	    int tiles_between = (Math.abs(y_difference)==0)?((Math.abs(x_difference)==0)?0:Math.abs(x_difference)):Math.abs(y_difference);
-	    double up_or_down = (hight_difference < 0.0)?-1.0:1.0;
+	    double VT = map.getTile(pt2) - map.getTile(pt1);
+	    int HT = (Math.abs(y_difference)==0)?((Math.abs(x_difference)==0)?0:Math.abs(x_difference)):Math.abs(y_difference);
+	    
+	    double relation = Math.abs(VT)/HT;
+	    double Q = Math.ceil(relation);
+	    double B = (Q-relation)*(Double)HT;
+	    double R = VT - Q*B;
+	    double S = (Double)HT - B + 1; 
+
+	    double up_or_down = (VT < 0.0)?-1.0:1.0;
 
 	    double h = Math.abs(hight_difference)*(Math.exp(up_or_down)) + (double)tiles_between;
 	    

@@ -14,8 +14,8 @@ public class AStarExp2 implements AIModule
 	public double g;
 	public double f;
 
-	public boolean equals(AStarExp2.Node n){
-	    return this.point.equals(n.point)?true:false;
+	public boolean equals(Object n){
+	    return (this.point.x == n.point.x)&&(this.point.y==n.point.y)?true:false;
 	}
 
 	public Node(final TerrainMap map, Point point, AStarExp2.Node parent, Double g){
@@ -95,8 +95,9 @@ public class AStarExp2 implements AIModule
 			{
 			    break;
 			}
+
+		    i++;
 		}
-	    i++;
 	    frontier.add(i, child);
 	    return frontier;
 	}
