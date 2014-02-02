@@ -7,17 +7,13 @@ import java.util.Iterator;
 // @authors: Abilio Oliveira and James Dryden
 public class AStarExp2 implements AIModule
 {
+
     public class Node
     {
 		public Point point;
 		public Node parent;
 		public double g;
 		public double f;
-
-		public boolean equals(AStarExp2.Node n)
-		{
-	    	return this.point.equals(n.point)?true:false;
-		}
 
 		public Node(final TerrainMap map, Point point, AStarExp2.Node parent, Double g)
 		{
@@ -35,6 +31,7 @@ public class AStarExp2 implements AIModule
 		    this.f = this.g + getHeuristics(map, this.point, map.getEndPoint());
 		}
 	}
+
 
 	/// AStar algorithm
 
@@ -56,7 +53,7 @@ public class AStarExp2 implements AIModule
 		//    System.out.println(map.getStartPoint());
 		    System.out.print(probe.point.x + "\n");
 		    System.out.println(probe.point.y);
-		    System.exit(1);
+		//    System.exit(1);
 		    explored.add(0, (probe));
 		    if (probe.point.equals(map.getEndPoint()))
 			{
@@ -67,7 +64,7 @@ public class AStarExp2 implements AIModule
 		    for(int i=0; i<8; i++)
 			{ 
 			    probe = new AStarExp2.Node(map, neighbors[i], explored.get(0), map.getCost(explored.get(0).point, neighbors[i]));
-			    if (!frontier.contains(probe) && !explored.contains(probe))
+			    if (!containsNode(frontier, probe) && !containsNode(frontier, probe))
 				{
 				    frontier = this.insertionSort(frontier, probe);
 				}
@@ -94,7 +91,7 @@ public class AStarExp2 implements AIModule
 
 	public ArrayList<AStarExp2.Node> insertionSort(ArrayList<AStarExp2.Node> frontier, AStarExp2.Node child)
 	{
-		System.out.println("begin: IS");
+		System.out.println("begin: insertionSort");
 	    Iterator<AStarExp2.Node> itr = frontier.iterator();
 	    int i=0;
 	    while(itr.hasNext())
@@ -107,7 +104,6 @@ public class AStarExp2 implements AIModule
 		i++;
 		}
 	    frontier.add(i, child);
-	    System.out.println("end: IS");
 	    return frontier;
 	}
 
@@ -135,4 +131,22 @@ public class AStarExp2 implements AIModule
 		}
 	    return null;
 	}
+
+	public boolean containsNode(ArrayList<AStarExp2.Node> set, AStarExp2.Node node)
+	{
+		System.out.println("CONTAINS");
+//		System.exit(1);
+		Iterator<AStarExp2.Node> itr = set.iterator();
+		while(itr.hasNext())
+		{
+	    	AStarExp2.Node object = itr.next();
+	    	if(node.point.equals(object.point)){
+	    		System.out.println("TRUE");
+//	    		System.exit(0);
+				return true;
+	    	}
+			
+    	}
+    	return false;
     }
+}
