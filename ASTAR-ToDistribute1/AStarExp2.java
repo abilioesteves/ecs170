@@ -7,7 +7,7 @@ import java.util.Iterator;
 // @authors: Abilio Oliveira and James Ryden
 public class AStarExp2 implements AIModule
 {
-    static class Node{
+    public class Node{
 	public Point point;
 	public Node parent;
 	public double g;
@@ -17,60 +17,44 @@ public class AStarExp2 implements AIModule
 	    return this.point.equals(n.point)?true:false;
 	}
 
-	public Node(final TerrainMap map, Point point, AStarExp.Node parent = null){
-	    this.point = new Point(point);
+	public Node(final TerrainMap map, Point point, AStarExp2.Node parent, Double g){
+	    this.point = new Point(point);`
 	    this.parent = parent;
-	    this.g = 0.0;
-	    this.f = super.getHeuristics(map, this.point, map.getEndPoint());
+	    this.g = g;
+	    this.f = getHeuristics(map, this.point, map.getEndPoint());
 	}
+
 	public void setValues(final TerrainMap map,Point newPoint, AStarExp2.Node node, double step_cost){
 	    this.point.setLocation(newPoint);
-	    this.cameFrom.setLocation(node.point);
+	    this.parent = node;
 	    this.g = node.g + step_cost;
-	    this.f = this.g + super.getHeuristics(map, this.point, map.getEndPoint());
+	    this.f = this.g + getHeuristics(map, this.point, map.getEndPoint());
 
 	    return;
 	}
-	public Node(AStarExp2.Node n) {
-		this.point = n.point;
-		this.parent = n.parent;
-		this.g = n.g;
-		this.f = n.f;
-	}
-	public void copyNode(Node newNode){
-	    this.point.setLocation(newNode.point);
-	    this.cameFrom = newNode.cameFrom;
-	    this.g = newNode.g;
-	    this.f = newNode.f;
-
-	    return;
-	}
-
     }
 
     /// AStar algorithm
 
     public List<Point> createPath(final TerrainMap map) {
-
-	AStarExp.Node node = new AStarExp.Node(map, map.getStartPoint());
-	AStarExp.Node child = new AStarExp.Node(map, map.getStartPoint());
-	ArrayList<AStarExp.Node> frontier = new ArrayList<AStarExp.Node>();
-	final ArrayList<AStarExp.Node> explored = new ArrayList<AStarExp.Node>();
+   	AStarExp2.Node node = new AStarExp2.Node(map, map.getStartPoint(), null, 0.0);
+	ArrayList<AStarExp2.Node> frontier = new ArrayList<AStarExp2.Node>();
+	final ArrayList<AStarExp2.Node> explored = new ArrayList<AStarExp2.Node>();
 	Point neighbors[] = new Point[8];
 
-	frontier.add(new AStarExp.Node(node));//add map parameter
+	frontier.add(node);//add map parameter
 
 	while(!frontier.isEmpty()){
-	    node.copyNode(frontier.remove(0));
-	    explored.add(0, new AStarExp.Node(node));
-	    if (node.point.equals(map.getEndPoint()))
+		AStarExp2.Node probe = frontier.remove(0);
+	    explored.add(0, new AStarExp2.Nde(probe);
+	    if (probe.point.equals(map.getEndPoint()))
 	    {
-			return this.reconstructPath(explored, node);
+			return this.reconstructPath(explored, probe);
 	    }
-	    neighbors = map.getNeighbors(node.point);	    
-	    for(int i=0; i<neighbors.size(); i++)
+	    neighbors = map.getNeighbors(probe.point);	    
+	    for(int i=0; i<8; i++)
 	    {
-			child.setValues(map, neighbors[i], node, map.getCost(node.point, child.point));
+	    	AStarExp2.Node child = new AStarExp2.Node(map, neighbors[i], explored.get(0), map.getCost(probe.point, child.point));
 			if (!frontier.contains(child) && !explored.contains(child))
 			{
 		    	frontier = this.insertionSort(frontier, child);
@@ -108,24 +92,12 @@ public class AStarExp2 implements AIModule
 		return frontier;
     }
 
-
-    public Boolean containsNode(ArrayList<AStarExp2.Node> set, AStarExp2.Node node) {
-		Iterator<AStarExp2.Node> itr = set.iterator();
-		while(itr.hasNext()) {
-		    AStarExp2.Node object = itr.next();
-		    if(node.point.equals(object.point)){
-			return true;
-	    }
-	}
-	return false;
-    }
-
-    public List<Point> reconstructPath(ArrayList<AStarExp2.Node> explored, ArrayList<AStarExp2.Node> n) {
+    public List<Point> reconstructPath(ArrayList<AStarExp2.Node> explored, AStarExp2.Node n) {
 		List<Point> path = new ArrayList<Point>();
 
-		while(!n.point == map.getStartPoint()) {
-			path.add(0, n.point)
-			n = search_explored(explored, n)
+		while(!(n.parent == null)) {
+			path.add(0, n.point);
+			n = search_explored(explored, n);
 		}
 	return path;
 	}
