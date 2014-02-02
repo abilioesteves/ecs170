@@ -9,36 +9,38 @@ public class AStarExp2 implements AIModule
 {
     public class Node
     {
-	public Point point;
-	public Node parent;
-	public double g;
-	public double f;
+		public Point point;
+		public Node parent;
+		public double g;
+		public double f;
 
-	public boolean equals(AStarExp2.Node n){
-	    return this.point.equals(n.point)?true:false;
+		public boolean equals(AStarExp2.Node n)
+		{
+	    	return this.point.equals(n.point)?true:false;
+		}
+
+		public Node(final TerrainMap map, Point point, AStarExp2.Node parent, Double g)
+		{
+	    	this.point = new Point(point);
+	    	this.parent = parent;
+	    	this.g = g;
+	    	this.f = getHeuristics(map, this.point, map.getEndPoint());
+		}
+
+		public void setValues(final TerrainMap map,Point newPoint, AStarExp2.Node node, double step_cost)
+		{
+		    this.point.setLocation(newPoint);
+		    this.parent = node;
+		    this.g = node.g + step_cost;
+		    this.f = this.g + getHeuristics(map, this.point, map.getEndPoint());
+		}
 	}
-
-	public Node(final TerrainMap map, Point point, AStarExp2.Node parent, Double g){
-	    this.point = new Point(point);
-	    this.parent = parent;
-	    this.g = g;
-	    this.f = getHeuristics(map, this.point, map.getEndPoint());
-	}
-
-	public void setValues(final TerrainMap map,Point newPoint, AStarExp2.Node node, double step_cost){
-	    this.point.setLocation(newPoint);
-	    this.parent = node;
-	    this.g = node.g + step_cost;
-	    this.f = this.g + getHeuristics(map, this.point, map.getEndPoint());
-
-	    return;
-	}
-    }
 
 	/// AStar algorithm
 
 	public List<Point> createPath(final TerrainMap map)
 	{
+		System.out.println("begin createPath");
 	    AStarExp2.Node node = new AStarExp2.Node(map, map.getStartPoint(), null, 0.0);
 	    ArrayList<AStarExp2.Node> frontier = new ArrayList<AStarExp2.Node>();
 	    final ArrayList<AStarExp2.Node> explored = new ArrayList<AStarExp2.Node>();
@@ -48,8 +50,13 @@ public class AStarExp2 implements AIModule
 	    AStarExp2.Node probe = null;
 	    while(!frontier.isEmpty())
 		{
+			System.out.println("begin while createPath");
 		    probe = null;
 		    probe = frontier.remove(0);
+		//    System.out.println(map.getStartPoint());
+		    System.out.print(probe.point.x + "\n");
+		    System.out.println(probe.point.y);
+		    System.exit(1);
 		    explored.add(0, (probe));
 		    if (probe.point.equals(map.getEndPoint()))
 			{
@@ -58,7 +65,7 @@ public class AStarExp2 implements AIModule
 		    neighbors = map.getNeighbors(probe.point);
 
 		    for(int i=0; i<8; i++)
-			{
+			{ 
 			    probe = new AStarExp2.Node(map, neighbors[i], explored.get(0), map.getCost(explored.get(0).point, neighbors[i]));
 			    if (!frontier.contains(probe) && !explored.contains(probe))
 				{
@@ -66,12 +73,13 @@ public class AStarExp2 implements AIModule
 				}
 			}
 		}
-
+		System.out.println("end: createPath");
 	    return null;// failure
 	}
 
 	private double getHeuristics(final TerrainMap map, final Point pt1, final Point pt2)
 	{
+		System.out.println("getHeuristics");
 	    double hight_difference = map.getTile(pt2) - map.getTile(pt1);
 	    int y_difference = pt2.y - pt1.y;
 	    int x_difference = pt2.x - pt1.x;
@@ -86,6 +94,7 @@ public class AStarExp2 implements AIModule
 
 	public ArrayList<AStarExp2.Node> insertionSort(ArrayList<AStarExp2.Node> frontier, AStarExp2.Node child)
 	{
+		System.out.println("begin: IS");
 	    Iterator<AStarExp2.Node> itr = frontier.iterator();
 	    int i=0;
 	    while(itr.hasNext())
@@ -95,14 +104,16 @@ public class AStarExp2 implements AIModule
 			{
 			    break;
 			}
+		i++;
 		}
-	    i++;
 	    frontier.add(i, child);
+	    System.out.println("end: IS");
 	    return frontier;
 	}
 
 	public List<Point> reconstructPath(ArrayList<AStarExp2.Node> explored, AStarExp2.Node n)
 	{
+		System.out.println("reconstructPath");
 	    List<Point> path = new ArrayList<Point>();
 
 	    while(!(n.parent == null))
@@ -116,6 +127,7 @@ public class AStarExp2 implements AIModule
 
 	public Node search_explored(ArrayList<AStarExp2.Node> explored, AStarExp2.Node n)
 	{
+		System.out.println("search_explored");
 	    for(int i = 0; i < explored.size(); i++)
 		{
 		    if(explored.get(i).point == n.point)
