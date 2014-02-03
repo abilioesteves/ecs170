@@ -134,8 +134,22 @@ public class NewAStarExp implements AIModule{
 	int yd = pt2.y - pt1.y;
 	int xd = pt2.x - pt1.x;
 	int HT = (Math.abs(yd)==0)?((Math.abs(xd)==0)?0:(Math.abs(xd)-1)):(Math.abs(yd)-1);
+	
+	return HT*Math.exp((VT/((double)HT)));
 
-	return HT*Math.exp((VT/(double)HT));
+	// if(VT>0){
+	//     if(HT>Math.abs(VT)){
+	// 	return VT*Math.exp(1) + (VT-HT-1);
+	//     }else{
+	// 	return HT*Math.exp(VT/(double)HT);
+	//     }
+	// }else{
+	//     if(HT>Math.abs(VT)){
+	// 	return Math.abs(VT)*Math.exp(-1) + (VT-HT-1);
+	//     }else{
+	// 	return HT*Math.exp(VT/(double)HT);
+	//     }
+	// }
     }
 
     // public List<Point> createPath(final TerrainMap map){
