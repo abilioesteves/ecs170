@@ -30,13 +30,13 @@ Cost Functions
 <code>
  // Exponential of the height difference
  public double getCost(final Point p1, final Point p2)
- {
-      return Math.exp(getTile(p2) - getTile(p1));
- }
- // New height divided by old height
+ {<br/>
+      return Math.exp(getTile(p2) - getTile(p1));</br>
+ }</br>
+ // New height divided by old height<br/>
  public double getCost(final Point p1, final Point p2)
- {
-      return (getTile(p2) / (getTile(p1) + 1));
+ {<br/>
+      return (getTile(p2) / (getTile(p1) + 1));</br>
  }
 </code>
 You may cut and paste them into TerrainMap.java over the current getCost function. Note that the second cost function can return 0. However, the Tim Carver “no worm hole assumption” holds, that is there will never be 2 points of height 0 next to each other.
@@ -59,9 +59,9 @@ You will now implement your own version of A*. Look at the DirectAI and StupidAI
 
 To implement the heuristic, write valid java code in the form of:
 <code>
- private double getHeuristic(final TerrainMap map, final Point pt1, final Point pt2)
- {
-  ...
+ private double getHeuristic(final TerrainMap map, final Point pt1, final Point pt2)<br/>
+ {<br/>
+  ...<br/>
  }
 </code>
 Submission Requirements: For questions a) and b) submit a java module labeled as AStarExp_<your-student-ids>.java for the first cost function and
