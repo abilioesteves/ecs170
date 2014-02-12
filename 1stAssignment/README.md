@@ -27,7 +27,7 @@ Your submission for this assignment should consist of a single .java file contai
 <b>Questions</b>
 
 Cost Functions    
-
+<code>
  // Exponential of the height difference
  public double getCost(final Point p1, final Point p2)
  {
@@ -38,7 +38,7 @@ Cost Functions
  {
       return (getTile(p2) / (getTile(p1) + 1));
  }
-
+</code>
 You may cut and paste them into TerrainMap.java over the current getCost function. Note that the second cost function can return 0. However, the Tim Carver “no worm hole assumption” holds, that is there will never be 2 points of height 0 next to each other.
 
 <b>Part 1: Creating Heuristics</b>
@@ -58,12 +58,12 @@ Note, compare your results against the Dijkstra's runtime module to make sure yo
 You will now implement your own version of A*. Look at the DirectAI and StupidAI classes to get an idea of how to search the state space.
 
 To implement the heuristic, write valid java code in the form of:
-
+<code>
  private double getHeuristic(final TerrainMap map, final Point pt1, final Point pt2)
  {
   ...
  }
-
+</code>
 Submission Requirements: For questions a) and b) submit a java module labeled as AStarExp_<your-student-ids>.java for the first cost function and
 AStarDiv_<your-student-ids>.java for the second cost function. (5 points each)
 
