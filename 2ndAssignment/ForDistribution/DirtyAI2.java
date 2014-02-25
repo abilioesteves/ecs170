@@ -105,6 +105,7 @@ public class DirtyAI2 extends AIModule{
     public int evaluationFunction(final GameStateModule game, int player_index, int column){
 	
 	int[] weight = {1,10,100,1000,100,10,1};
-	return (player_index == 1)?weight[column]:-1*weight[column];
+	int result = r.nextInt(1000)*weight[column];
+	return (player_index == 1)?result:-1*result;
     }
 }
