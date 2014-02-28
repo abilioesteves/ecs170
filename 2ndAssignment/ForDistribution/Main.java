@@ -43,7 +43,8 @@ public class Main
 		// Default height to 6
 		int height = 6;
 		boolean text = false;
-		long seed = System.currentTimeMillis();
+		boolean userEnteredSeed = false;
+		long seed = -1;
 
 		// Parse through the command line arguements
 		try
@@ -51,11 +52,11 @@ public class Main
 			int i = 0;
 			while(i < args.length)
 			{
-				if(args[i].equalsIgnoreCase("-p1"))
+				if(args[i].equalsIgnoreCase("-p1")) {
 					players[0] = (AIModule) Class.forName(args[i + 1]).newInstance();
-				else if(args[i].equalsIgnoreCase("-p2"))
+				} else if(args[i].equalsIgnoreCase("-p2")) {
 					players[1] = (AIModule) Class.forName(args[i + 1]).newInstance();
-				else if(args[i].equalsIgnoreCase("-t"))
+				} else if(args[i].equalsIgnoreCase("-t"))
 				{
 					AI_time = Integer.parseInt(args[i + 1]);
 					if(AI_time <= 0)
@@ -90,6 +91,7 @@ public class Main
 //		                }:q!:q:
 				else if(args[i].equalsIgnoreCase("-seed"))
 				{
+					userEnteredSeed = true;
 			                seed = Integer.parseInt(args[i + 1]);
 				}
 				else
@@ -122,7 +124,12 @@ public class Main
 			System.err.println("Unknown Error");
 			System.exit(5);
 		}
-
+		if (userEnteredSeed)
+		{
+			for (int i = 0; i < players.length; i++) {
+				players[i].setSeed(seed);
+			}
+		}
 		// Create a new game
 		GameStateModule game;
 		try

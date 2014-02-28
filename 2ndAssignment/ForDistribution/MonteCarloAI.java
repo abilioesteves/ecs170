@@ -16,11 +16,10 @@ import java.util.Random;
  */
 public class MonteCarloAI extends AIModule
 {
-	/// Random number generator to play random games.
-	private final Random r = new Random(System.currentTimeMillis());
+	/// Random number generator to play random games.	
 	/// Used as a helper when picking random moves.
 	private int[] moves;
-
+	
 	/// Simulates random games and chooses the move that leads to the highest expected value.
 	@Override
 	public void getNextMove(final GameStateModule state)

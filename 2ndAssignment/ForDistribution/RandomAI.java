@@ -14,7 +14,6 @@ public class RandomAI extends AIModule
 {
 	public void getNextMove(final GameStateModule game)
 	{
-		final Random r = new Random();
 		// set chosenMove to a random column
 		int move = r.nextInt(game.getWidth());
 		while(!game.canMakeMove(move))

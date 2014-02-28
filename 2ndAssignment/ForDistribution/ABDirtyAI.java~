@@ -1,6 +1,7 @@
 import java.util.Random;
 
 public class DirtyAI2 extends AIModule{
+    private final Random r = new Random(System.currentTimeMillis());
 
     @Override
     public void getNextMove(final GameStateModule state){

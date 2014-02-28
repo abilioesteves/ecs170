@@ -43,11 +43,9 @@ public class ABDirtyAI extends AIModule{
 	    v_aux = minValue(game, depth - 1, alpha, beta);
 	    if(v_aux>v){v=v_aux; this.column = moves[i];}
 	    game.unMakeMove();
-	    if (v >= beta){
+	    if (v >= beta)
 		return v;
-	    }else{
-		alpha = max(alpha, v);
-	    }
+	    alpha = max(alpha, v);
 	}
 
 	if(terminate){
@@ -77,11 +75,9 @@ public class ABDirtyAI extends AIModule{
 	    v_aux = maxValue(game, depth - 1, alpha, beta);
 	    if(v_aux<v){v=v_aux; this.column = moves[i];}
 	    game.unMakeMove();
-	    if (v <= alpha){
+	    if (v <= alpha)
 		return v;
-	    }else{
-		beta = min(beta, v);
-	    }
+	    beta = min(beta, v);
 	}
 
 	if(terminate){
