@@ -14,7 +14,6 @@ public class ABDirtyAI2 extends AIModule{
 	final GameStateModule game = state.copy();
 
 	while (!terminate){
-	    //   System.out.print("depth: " + i + "\n\n");
 	    interactiveDeepeningAlphaBetaSearch(game, i);
 	    i++;
 	}
@@ -31,7 +30,7 @@ public class ABDirtyAI2 extends AIModule{
     
     public int makeMove(final GameStateModule game, int column){ 
 	// store the move to a arraylist, reducing complexity of evaluation Function (also making things easier to deal with)
-	int row = game.getHeightAt(column) - 1;
+	int row = game.getHeightAt(column);
 	if (game.getActivePlayer() == 1){
 	    this.player1Ats.add(new Point(row,column));
 	}else{
@@ -53,6 +52,7 @@ public class ABDirtyAI2 extends AIModule{
     public int maxValue(final GameStateModule game, int depth, int alpha, int beta){
 	boolean gameIsOver = game.isGameOver();
 	if (depth <= 0 || gameIsOver) return evaluationFunction(game, gameIsOver); // terminal test (a function of the depth)
+	System.out.print("\n\nMAX\n\n");
 
 	int v = -1*Integer.MAX_VALUE;
 	int v_aux;
@@ -87,6 +87,7 @@ public class ABDirtyAI2 extends AIModule{
     public int minValue(final GameStateModule game, int depth, int alpha, int beta){
 	boolean gameIsOver = game.isGameOver();
 	if (depth <= 0 || gameIsOver) return evaluationFunction(game, gameIsOver); // terminal test (a function of the depth)
+	System.out.print("\n\nMIN\n\n");
 
 	int v = -1*Integer.MAX_VALUE;
 	int v_aux;
@@ -150,11 +151,11 @@ public class ABDirtyAI2 extends AIModule{
 				// adjacent point belongs to the player being evaluated
 				if(game.getAt(x-dx, y-dy) == p+1) {
 				    // (x+dx,y+dy) make three in a row with (x,y);
-				    score[p] += 2*weights[this.column]; 
+				    score[p] += 2*weights[y]; 
 				    // it must be weighted in accordance with column, since it is known
 				    // that who controls the middle has more advantage
 				}else {
-				    score[p] += 1; // two in a row is better than nothing.
+				    score[p] += 1*weights[]; // two in a row is better than nothing.
 				}
 			    }else{
 				// the adjancent point or is empty or it belongs to another player, hence without importance
@@ -164,10 +165,11 @@ public class ABDirtyAI2 extends AIModule{
 		    }
 		}
 	    }
-	    System.out.print("\nscore[0]: " + score[0] + " score[1]: " + score[1]);
-	    if(our_player == 1){
+	    if(our_player == 1){	
+		System.out.print("\nscore: " + (score[0] - score[1]));
 		return score[0] - score[1];
 	    }else{
+		System.out.print("\nscore: " + (score[1] - score[0]));
 		return score[1] - score[0];
 	    }
 	}else {

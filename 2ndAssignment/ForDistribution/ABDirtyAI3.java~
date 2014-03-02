@@ -68,8 +68,7 @@ public class DirtyAI2 extends AIModule{
     
     public int minValue(final GameStateModule game, int depth, int column){
 	boolean gameIsOver = game.isGameOver();
-	if (depth <= 0 || gameIsOver) return evaluationFunction(game, gameIsOver, column); 
-	// cutoff test
+	if (depth <= 0 || gameIsOver) return evaluationFunction(game, gameIsOver, column); // terminal test (a function of the depth)
 
 	int v = Integer.MAX_VALUE;
 	final int[] moves = new int[game.getWidth()];

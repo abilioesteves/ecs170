@@ -1,7 +1,7 @@
 import java.util.*;
 import java.awt.Point;
 
-public class DirtyAI2 extends AIModule{
+public class ABDirtyAI3 extends AIModule{
     private int our_player;
     public ArrayList<Point> player1Ats = new ArrayList<Point>();
     public ArrayList<Point> player2Ats = new ArrayList<Point>();
@@ -14,8 +14,100 @@ public class DirtyAI2 extends AIModule{
 	this.our_player = game.getActivePlayer();
 	while (!terminate){
 	    System.out.print("\n\ndepth: " + i + "\n\n");
-	    interactiveDeepeningMiniMaxDecision(game, i);
+	    interactiveDeepeningAlphaBetaSearch(game, i);
 	    i++;
+	}
+    }
+
+  public void interactiveDeepeningAlphaBetaSearch(final GameStateModule game, int depth){
+	int result_value = -1*Integer.MAX_VALUE;
+	int result_value_aux;
+	int column = 0;
+	final int[] moves = new int[game.getWidth()];
+	int numLegalMoves = 0;
+
+	// Fill in what moves are legal.
+	for(int i = 0; i < game.getWidth(); ++i)
+	    if(game.canMakeMove(i))
+		moves[numLegalMoves++] = i;
+
+	// For each possible action, returns the maximum value given depth
+	for (int i = 0; i < numLegalMoves && !terminate; i++){
+	    int row = makeMove(game,moves[i]);
+	    result_value_aux = minValue(game, depth - 1, moves[i], -Integer.MAX_VALUE, Integer.MAX_VALUE);
+	    if (result_value_aux >= result_value){// update result if the new result is greater than the previous calculated max
+		column = moves[i];
+		result_value = result_value_aux;
+	    }
+	    unmakeMove(game, moves[i],row);
+	}
+
+	chosenMove = (terminate)?chosenMove:column;
+    }
+    
+    public int minValue(final GameStateModule game, int depth, int column, int alpha, int beta){
+	boolean gameIsOver = game.isGameOver();
+	if (depth <= 0 || gameIsOver) return evaluationFunction(game, gameIsOver, column); // terminal test (a function of the depth)
+
+	int v = Integer.MAX_VALUE;
+	final int[] moves = new int[game.getWidth()];
+	int numLegalMoves = 0;
+	int v_aux;
+
+	// Fill in what moves are legal.
+	for(int i = 0; i < game.getWidth(); ++i)
+	    if(game.canMakeMove(i))
+		moves[numLegalMoves++] = i;
+
+	for (int i = 0; i < numLegalMoves && !terminate; i++){
+	    int row = makeMove(game,moves[i]);
+	    v_aux = maxValue(game, depth - 1, moves[i], alpha, beta);
+	    if (v_aux <= v)
+		v = v_aux;
+	    unmakeMove(game, moves[i],row);
+	    if(v <= alpha)
+		return v;
+	    beta = min(beta, v);
+	}
+
+	if(terminate){
+	    System.out.print("\n TERMINATE \n");
+	    return Integer.MAX_VALUE;
+	}else{
+	    return v;
+	}
+    }
+
+    public int maxValue(final GameStateModule game, int depth, int column, int alpha, int beta){
+	boolean gameIsOver = game.isGameOver();
+	if (depth <= 0 || gameIsOver) return evaluationFunction(game, gameIsOver, column); 
+	// terminal test (a function of the depth)
+
+	int v = -1*Integer.MAX_VALUE;
+	int[] moves = new int[game.getWidth()];
+	int numLegalMoves = 0;
+	int v_aux;
+
+	// Fill in what moves are legal.
+	for(int i = 0; i < game.getWidth(); ++i)
+	    if(game.canMakeMove(i))
+		moves[numLegalMoves++] = i;
+
+	for (int i = 0; i < numLegalMoves && !terminate; i++){
+	    int row = makeMove(game,moves[i]);
+	    v_aux = minValue(game, depth - 1, moves[i], alpha, beta);
+	    if (v_aux > v)
+		v = v_aux;
+	    unmakeMove(game, moves[i],row);
+	    if (v >= beta)
+		return v;
+	    alpha = max(alpha,v);
+	}
+	if(terminate){
+	    System.out.print("\n TERMINATE \n");
+	    return Integer.MAX_VALUE;
+	}else{
+	    return v;
 	}
     }
 
@@ -40,93 +132,12 @@ public class DirtyAI2 extends AIModule{
 	}
     }
 
-    public void interactiveDeepeningMiniMaxDecision(final GameStateModule game, int depth){
-	int result_value = -1*Integer.MAX_VALUE;
-	int result_value_aux;
-	int column = 0;
-	final int[] moves = new int[game.getWidth()];
-	int numLegalMoves = 0;
-
-	// Fill in what moves are legal.
-	for(int i = 0; i < game.getWidth(); ++i)
-	    if(game.canMakeMove(i))
-		moves[numLegalMoves++] = i;
-
-	// For each possible action, returns the maximum value given depth
-	for (int i = 0; i < numLegalMoves && !terminate; i++){
-	    int row = makeMove(game,moves[i]);
-	    result_value_aux = minValue(game, depth - 1, moves[i]);
-	    if (result_value_aux >= result_value){// update result if the new result is greater than the previous calculated max
-		column = moves[i];
-		result_value = result_value_aux;
-	    }
-	    unmakeMove(game, moves[i],row);
-	}
-
-	chosenMove = (terminate)?chosenMove:column;
-    }
-    
-    public int minValue(final GameStateModule game, int depth, int column){
-	boolean gameIsOver = game.isGameOver();
-	if (depth <= 0 || gameIsOver) return evaluationFunction(game, gameIsOver, column); 
-	// cutoff test
-
-	int v = Integer.MAX_VALUE;
-	final int[] moves = new int[game.getWidth()];
-	int numLegalMoves = 0;
-	int v_aux;
-
-	// Fill in what moves are legal.
-	for(int i = 0; i < game.getWidth(); ++i)
-	    if(game.canMakeMove(i))
-		moves[numLegalMoves++] = i;
-
-	for (int i = 0; i < numLegalMoves && !terminate; i++){
-	    int row = makeMove(game,moves[i]);
-	    v_aux = maxValue(game, depth - 1, moves[i]);
-	    if (v_aux <= v){
-		v = v_aux;
-	    }
-	    unmakeMove(game, moves[i],row);
-	}
-
-	if(terminate){
-	    System.out.print("\n TERMINATE \n");
-	    return Integer.MAX_VALUE;
-	}else{
-	    return v;
-	}
+    public int max(int a, int b){
+	return (a>b)?a:b;
     }
 
-    public int maxValue(final GameStateModule game, int depth, int column){
-	boolean gameIsOver = game.isGameOver();
-	if (depth <= 0 || gameIsOver) return evaluationFunction(game, gameIsOver, column); 
-	// terminal test (a function of the depth)
-
-	int v = -1*Integer.MAX_VALUE;
-	int[] moves = new int[game.getWidth()];
-	int numLegalMoves = 0;
-	int v_aux;
-
-	// Fill in what moves are legal.
-	for(int i = 0; i < game.getWidth(); ++i)
-	    if(game.canMakeMove(i))
-		moves[numLegalMoves++] = i;
-
-	for (int i = 0; i < numLegalMoves && !terminate; i++){
-	    int row = makeMove(game,moves[i]);
-	    v_aux = minValue(game, depth - 1, moves[i]);
-	    if (v_aux > v){
-		v = v_aux;
-	    }
-	    unmakeMove(game, moves[i],row);
-	}
-	if(terminate){
-	    System.out.print("\n TERMINATE \n");
-	    return Integer.MAX_VALUE;
-	}else{
-	    return v;
-	}
+    public int min(int a, int b){
+	return (a<b)?a:b;
     }
 
     public int evaluationFunction(final GameStateModule game, boolean gameIsOver, int column) {
