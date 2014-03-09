@@ -10,10 +10,31 @@ import java.util.*
 */
 
 public cass AbilioOliveira_JamesDryden {
+	/// Sigmoid unit class
+	/**
+	* Holds the structure and functions related to the sigmoid units
+	*/
 	public class Sigmoid{
-
+		
 	}
-	public class Main{
 
+	/// Classifier class
+	/**
+	* Encapsulates the network structure and deals with its behavior
+	*/
+	public class Classifier{
+		
+	}
+
+	/// Entry Point class
+	/**
+	* Parses command line arguments and set up our Classifier
+	*/
+	public class Main{
+		
+		/// Program startup method
+		public static void main(String[] args){
+			
+		}
 	}
 }
