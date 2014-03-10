@@ -15,7 +15,7 @@ public cass AbilioOliveira_JamesDryden {
 	* Holds the structure and functions related to the sigmoid units
 	*/
 	public class Sigmoid{
-
+		public ArrayList<int> weights = new ArrayList<int>();
 	}
 
 	/// Classifier class
