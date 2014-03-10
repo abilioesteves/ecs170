@@ -9,7 +9,9 @@ import java.util.*
 * @author Abilio Oliveira and James Dryden
 */
 
-public cass AbilioOliveira_JamesDryden {
+public class AbilioOliveira_JamesDryden {
+	final int MALE = 1;
+	final int FEMALE = -1;
 	/// Sigmoid unit class
 	/**
 	* Holds the structure and functions related to the sigmoid units
