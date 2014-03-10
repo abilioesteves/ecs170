@@ -15,7 +15,7 @@ public cass AbilioOliveira_JamesDryden {
 	* Holds the structure and functions related to the sigmoid units
 	*/
 	public class Sigmoid{
-		
+
 	}
 
 	/// Classifier class
@@ -23,7 +23,7 @@ public cass AbilioOliveira_JamesDryden {
 	* Encapsulates the network structure and deals with its behavior
 	*/
 	public class Classifier{
-		
+
 	}
 
 	/// Entry Point class
@@ -34,7 +34,16 @@ public cass AbilioOliveira_JamesDryden {
 		
 		/// Program startup method
 		public static void main(String[] args){
-			
+			try{
+				int i = 0;
+				while (i < args.length){
+					if (args[i].equalsIgnoreCase("-train")) {
+						// perform training
+					} else if (args[i].equalsIgnoreCase("-test")){
+						// perfrom testing
+					}
+				}
+			}
 		}
 	}
 }
