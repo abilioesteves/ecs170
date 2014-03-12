@@ -9,7 +9,7 @@ import java.io.*;
 * @author Abilio Oliveira and James Dryden
 */
 
-public class AbilioOliveira_JamesDryden {
+public class Dirty { 
 	final static double MALE = 0.9; // 100% confidence that a test is MALE
 	final static double FEMALE = -0.9; // 100% confidence that a test is FEMALE
 	final static int NUMBEROFOUTPUTUNITS = 1;
@@ -20,7 +20,7 @@ public class AbilioOliveira_JamesDryden {
 	/**
 	* Computes over the ANN; or computes THE ANN
 	*/
-	public static class Classifier{
+	public static class Classifier {
 
 		public static int train(ANN ann, String fileName) {
 			Classifier.saveNetwork(ann, fileName);
@@ -47,7 +47,7 @@ public class AbilioOliveira_JamesDryden {
 	/**
 	* Holds the Artificial Neural Network (ANN) structure and its methods
 	*/
-	public static class ANN implements Serializable{
+	public static class ANN implements Serializable {
 		public ArrayList<SigmoidUnit> hidden_units = new ArrayList<SigmoidUnit>(NUMBEROFHIDDENUNITS); // maybe a graph instead of an ArrayList? This needs some discussion.
 		public ArrayList<SigmoidUnit> output_units = new ArrayList<SigmoidUnit>(NUMBEROFOUTPUTUNITS);
 
@@ -86,7 +86,7 @@ public class AbilioOliveira_JamesDryden {
 	/**
 	* Holds the structure and methods related to the sigmoid units
 	*/
-	public static class SigmoidUnit implements Serializable{
+	public static class SigmoidUnit implements Serializable {
 		public ArrayList<Double> weights = new ArrayList<Double>(NUMBEROFINPUTS+1);
 		public double output = 0.5;
 
@@ -102,7 +102,7 @@ public class AbilioOliveira_JamesDryden {
 	/**
 	* Parses command line arguments and set up our Classifier
 	*/
-	public static void main(String[] args){
+	public static void main(String[] args) {
 		ANN ann;
 		String net_topol_file_name = "ANNProperties", test_file_name = "";
 		boolean train = false, test = false;
