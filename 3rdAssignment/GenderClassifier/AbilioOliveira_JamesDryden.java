@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.util.*;
+import java.io.*;
 
 /// General Class.
 /**
@@ -21,20 +22,32 @@ public class AbilioOliveira_JamesDryden {
 	*/
 	public static class Classifier{
 
-		public static int train(ANN ann, String fileName){
+		public static int train(ANN ann, String fileName) {
+			Classifier.saveNetwork(ann, fileName);
 			return 0;
 		}
 
-		public static int test(ANN ann, String fileName){
+		public static int test(ANN ann, String fileName) {
 			return 0;
 		}
 
+		public static void saveNetwork(ANN ann, String fileName) {
+			try {
+				FileOutputStream fileOut = new FileOutputStream(fileName + ".net");
+				ObjectOutputStream out = new ObjectOutputStream(fileOut);
+				out.writeObject(ann);
+				out.close();
+			} catch (IOException i){
+				i.printStackTrace();
+				System.exit(7);
+			}
+		}
 	}
 
 	/**
 	* Holds the Artificial Neural Network (ANN) structure and its methods
 	*/
-	public static class ANN{
+	public static class ANN implements Serializable{
 		public ArrayList<SigmoidUnit> hidden_units = new ArrayList<SigmoidUnit>(NUMBEROFHIDDENUNITS); // maybe a graph instead of an ArrayList? This needs some discussion.
 		public ArrayList<SigmoidUnit> output_units = new ArrayList<SigmoidUnit>(NUMBEROFOUTPUTUNITS);
 
@@ -47,8 +60,25 @@ public class AbilioOliveira_JamesDryden {
 			}
 		}
 
-		public ANN (String file){
-			
+		// retrieve network structure from file
+		public ANN (String fileName){
+			ANN a = null;
+			try {
+				FileInputStream fileIn = new FileInputStream(fileName + ".net");
+				ObjectInputStream in = new ObjectInputStream(fileIn);
+				a = (ANN)in.readObject();
+				in.close();
+				fileIn.close();
+			} catch (IOException i){
+				i.printStackTrace();
+				System.exit(5);
+			} catch (ClassNotFoundException c) {
+				System.out.println("ANN class not found");
+				c.printStackTrace();
+				System.exit(6);
+			} 
+			this.hidden_units = a.hidden_units;
+			this.output_units = a.output_units;
 		}
 	}
 
@@ -56,18 +86,14 @@ public class AbilioOliveira_JamesDryden {
 	/**
 	* Holds the structure and methods related to the sigmoid units
 	*/
-	public static class SigmoidUnit{
+	public static class SigmoidUnit implements Serializable{
 		public ArrayList<Double> weights = new ArrayList<Double>(NUMBEROFINPUTS+1);
-		public double output = 0.0;
+		public double output = 0.5;
 
 		public SigmoidUnit () {
 			for (int i = 0; i <= NUMBEROFINPUTS; i++) {
-				weights.add(0.0);
+				weights.add(0.1);
 			}
-		}
-
-		public SigmoidUnit (String file) {
-			
 		}
 
 	}
@@ -78,7 +104,7 @@ public class AbilioOliveira_JamesDryden {
 	*/
 	public static void main(String[] args){
 		ANN ann;
-		String file = "", test_file = "";
+		String net_topol_file_name = "ANNProperties", test_file_name = "";
 		boolean train = false, test = false;
 		int i = 0, result = 0;
 		try{
@@ -89,19 +115,20 @@ public class AbilioOliveira_JamesDryden {
 					i++;
 				} else if (args[i].equalsIgnoreCase("-test")) {
 					// perform testing
-					test_file = args[i+1]; // initialize from file
-					if (test_file.length() == 0){
+					test_file_name = args[i+1]; // initialize from file
+					if (test_file_name.length() == 0){
 						throw new IllegalArgumentException("test file name not specified");
 					}
 					test = true;
 					i+=2;
 				} else if (args[i].equalsIgnoreCase("-f")) {
-					file = args[i+1];
-					if (file.length() == 0) {
-						file = "ANNProperties";
+					net_topol_file_name = args[i+1];
+					if (net_topol_file_name.length() == 0) {
+						net_topol_file_name = "ANNProperties";
 					}
 					i+=2;
 				} else {
+					i++;
 					throw new IllegalArgumentException("not known argument");
 				}
 			}
@@ -117,10 +144,15 @@ public class AbilioOliveira_JamesDryden {
 			System.exit(3);
 		}else if(train){
 			ann = new ANN();
-			result = Classifier.train(ann, file);
-		}else {
-			ann = new ANN(test_file);
-			result = Classifier.test(ann, file);
+			result = Classifier.train(ann, net_topol_file_name);
+		}else if (test){
+			ann = new ANN(net_topol_file_name);
+			result = Classifier.test(ann, test_file_name);
+		} else {
+			System.out.println("no -train/-test argument passed");
+			System.exit(4);
 		}
+
+		System.out.println("result = " + result);
 	}
 }
