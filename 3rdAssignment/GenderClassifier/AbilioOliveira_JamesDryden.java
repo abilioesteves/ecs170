@@ -9,8 +9,11 @@ import java.util.*;
 */
 
 public class AbilioOliveira_JamesDryden {
-	final double MALE = 0.9; // 100% confidence that a test is MALE
-	final double FEMALE = -0.9; // 100% confidence that a test is FEMALE
+	final static double MALE = 0.9; // 100% confidence that a test is MALE
+	final static double FEMALE = -0.9; // 100% confidence that a test is FEMALE
+	final static int NUMBEROFOUTPUTUNITS = 1;
+	final static int NUMBEROFHIDDENUNITS = 4;
+	final static int NUMBEROFINPUTS = 120*128;
 
 	/// Classifier class
 	/**
@@ -32,15 +35,20 @@ public class AbilioOliveira_JamesDryden {
 	* Holds the Artificial Neural Network (ANN) structure and its methods
 	*/
 	public static class ANN{
-		public ArrayList<SigmoidUnit> hiddenUnits = new ArrayList<SigmoidUnit>(); // maybe a graph instead of an ArrayList? This needs some discussion.
-		public ArrayList<SigmoidUnit> outputUnit = new ArrayList<SigmoidUnit>();
+		public ArrayList<SigmoidUnit> hidden_units = new ArrayList<SigmoidUnit>(NUMBEROFHIDDENUNITS); // maybe a graph instead of an ArrayList? This needs some discussion.
+		public ArrayList<SigmoidUnit> output_units = new ArrayList<SigmoidUnit>(NUMBEROFOUTPUTUNITS);
 
 		public ANN (){
-
+			for (int i = 0; i < NUMBEROFOUTPUTUNITS; i++) {
+				output_units.add(new SigmoidUnit());
+			}
+			for (int i = 0; i< NUMBEROFHIDDENUNITS; i++) {
+				hidden_units.add(new SigmoidUnit());
+			}
 		}
 
 		public ANN (String file){
-
+			
 		}
 	}
 
@@ -48,9 +56,19 @@ public class AbilioOliveira_JamesDryden {
 	/**
 	* Holds the structure and methods related to the sigmoid units
 	*/
-	public class SigmoidUnit{
-		public ArrayList<Integer> weights = new ArrayList<Integer>();
+	public static class SigmoidUnit{
+		public ArrayList<Double> weights = new ArrayList<Double>(NUMBEROFINPUTS+1);
 		public double output = 0.0;
+
+		public SigmoidUnit () {
+			for (int i = 0; i <= NUMBEROFINPUTS; i++) {
+				weights.add(0.0);
+			}
+		}
+
+		public SigmoidUnit (String file) {
+			
+		}
 
 	}
 
