@@ -22,11 +22,13 @@ public class Dirty {
 	*/
 	public static class Classifier {
 
+		//@todo
 		public static int train(ANN ann, String net_file_name) {
 			ann.saveNetwork(net_file_name);
 			return 0;
 		}
 
+		// @todo
 		public static int test(ANN ann, String test_file_name) {
 			
 			// code block for debugging
@@ -43,6 +45,11 @@ public class Dirty {
 				}
 			}*/
 			return -1;
+		}
+
+		// @todo
+		public static String nextTrainingEpisode (){
+			return "";
 		}
 
 	}
@@ -106,11 +113,17 @@ public class Dirty {
 		public ArrayList<Double> weights;
 		public double output = 0.0;
 
+		// construct the sigmoid unit weight array
 		public SigmoidUnit (int number_of_weights) {
 			this.weights = new ArrayList<Double>(number_of_weights + 1);
 			for (int i = 0; i <= number_of_weights; i++) {
 				weights.add(0.0);
 			}
+		}
+
+		// @todo
+		public int updateSigmoidUnit () {
+			return 0;
 		}
 
 	}
