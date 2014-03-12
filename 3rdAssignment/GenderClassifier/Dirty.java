@@ -29,7 +29,12 @@ public class Dirty {
 		}
 
 		// @todo
-		public static int test(ANN ann, String test_file_name) {
+		public static String nextTrainingEpisode() {
+			return "";
+		}
+
+		// @todo
+		public static int test(ANN ann) {
 			
 			// code block for debugging
 			/*for (int i = 0; i < NUMBEROFOUTPUTUNITS; i++) {
@@ -48,8 +53,8 @@ public class Dirty {
 		}
 
 		// @todo
-		public static String nextTrainingEpisode (){
-			return "";
+		public static ArrayList<Integer> parsePixelsToInput(String fileName) {
+			return null;
 		}
 
 	}
@@ -73,7 +78,7 @@ public class Dirty {
 		// retrieve network structure from file
 		public ANN (String net_file_name){
 			ANN a = null;
-			try {
+			try {	
 				FileInputStream file_in = new FileInputStream(net_file_name + ".net");
 				ObjectInputStream in = new ObjectInputStream(file_in);
 				a = (ANN)in.readObject();
@@ -134,7 +139,7 @@ public class Dirty {
 	*/
 	public static void main(String[] args) {
 		ANN ann;
-		String net_file_name = "ANNProperties", test_file_name = "";
+		String net_file_name = "ANNProperties";
 		boolean train = false, test = false;
 		int i = 0, result = 0;
 		try{
@@ -145,12 +150,8 @@ public class Dirty {
 					i++;
 				} else if (args[i].equalsIgnoreCase("-test")) {
 					// perform testing
-					test_file_name = args[i+1]; // initialize from file
-					if (test_file_name.length() == 0){
-						throw new IllegalArgumentException("test file name not specified");
-					}
 					test = true;
-					i+=2;
+					i++;
 				} else if (args[i].equalsIgnoreCase("-f")) {
 					net_file_name = args[i+1];
 					if (net_file_name.length() == 0) {
@@ -177,7 +178,7 @@ public class Dirty {
 			result = Classifier.train(ann, net_file_name);
 		}else if (test){
 			ann = new ANN(net_file_name);
-			result = Classifier.test(ann, test_file_name);
+			result = Classifier.test(ann);
 		} else {
 			System.out.println("no -train/-test argument passed");
 			System.exit(4);
