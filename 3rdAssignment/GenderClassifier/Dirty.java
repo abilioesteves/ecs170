@@ -24,13 +24,37 @@ public class Dirty {
 
 		//@todo
 		public static int train(ANN ann, String net_file_name) {
+			double n = 0.05; // learning rate
+			ArrayList<Integer> input = new ArrayList<Integer>();
+			ArrayList<String> trainingEpisodeSeq = new ArrayList<String>();
+			ArrayList<String> testEpisodeSeq = new ArrayList<String>();
+
+			episodeSeq(trainingEpisodeSeq, testEpisodeSeq);
+			Iterator[] itr = {trainingEpisodeSeq.iterator(), testEpisodeSeq.iterator()};
+
+			while(itr[0].hasNext()){
+				String e = (String)itr[0].next();
+				input.add(1); // x0 is always 1
+				input.addAll(parsePixelsToInput(e));
+
+				input.clear();
+			}
+
+
+
 			ann.saveNetwork(net_file_name);
 			return 0;
 		}
 
-		// @todo
-		public static String nextTrainingEpisode() {
-			return "";
+		// @todo: trainingEpisodeSeq and testEpisodeSeq will hold an array of file names, in the right sequence, so we can train our network and test it
+		public static void episodeSeq(ArrayList<String> trainingEpisodeSeq, ArrayList<String> testEpisodeSeq) {
+			return;
+		}
+
+		// @todo: this method will parse a certain file and return an integer array with the values of each pixel over 128 
+		// (we need to normalize the values) so it fit the range -1 to 1
+		public static ArrayList<Integer> parsePixelsToInput(String inputFile) {
+			return null;
 		}
 
 		// @todo
@@ -50,11 +74,6 @@ public class Dirty {
 				}
 			}*/
 			return -1;
-		}
-
-		// @todo
-		public static ArrayList<Integer> parsePixelsToInput(String fileName) {
-			return null;
 		}
 
 	}
