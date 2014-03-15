@@ -29,25 +29,33 @@ public class Dirty {
 			ArrayList<String> trainingEpisodeSeq = new ArrayList<String>();
 			ArrayList<String> testEpisodeSeq = new ArrayList<String>();
 
-			episodeSeq(trainingEpisodeSeq, testEpisodeSeq);
-			Iterator[] itr = {trainingEpisodeSeq.iterator(), testEpisodeSeq.iterator()};
+			// five-fold cross-validationw
+			for (int i = 0; i < 5; i++){
 
-			while(itr[0].hasNext()){
-				String e = (String)itr[0].next();
-				input.add(1); // x0 is always 1
-				input.addAll(parsePixelsToInput(e));
+				episodeSeq(i, trainingEpisodeSeq, testEpisodeSeq);
+				Iterator itr = trainingEpisodeSeq.iterator();
 
-				input.clear();
+				while(itr.hasNext()){
+					String e = (String)itr.next();
+					input.add(1); // x0 is always 1
+					input.addAll(parsePixelsToInput(e));
+
+					// train
+
+
+					input.clear();
+				}
+
+				test(ann, testEpisodeSeq);
+
 			}
-
-
 
 			ann.saveNetwork(net_file_name);
 			return 0;
 		}
 
 		// @todo: trainingEpisodeSeq and testEpisodeSeq will hold an array of file names, in the right sequence, so we can train our network and test it
-		public static void episodeSeq(ArrayList<String> trainingEpisodeSeq, ArrayList<String> testEpisodeSeq) {
+		public static void episodeSeq(int fold, ArrayList<String> trainingEpisodeSeq, ArrayList<String> testEpisodeSeq) {
 			return;
 		}
 
@@ -58,7 +66,19 @@ public class Dirty {
 		}
 
 		// @todo
-		public static int test(ANN ann) {
+		public static int test(ANN ann, ArrayList<String> testEpisodeSeq) {
+			Iterator itr = testEpisodeSeq.iterator();
+			ArrayList<Integer> input = new ArrayList<Integer>();
+
+			while(itr.hasNext()){
+				String e = (String)itr.next();
+				input.add(1);
+				input.addAll(parsePixelsToInput(e));
+
+				// test
+
+				input.clear();
+			}
 			
 			// code block for debugging
 			/*for (int i = 0; i < NUMBEROFOUTPUTUNITS; i++) {
@@ -146,9 +166,13 @@ public class Dirty {
 		}
 
 		// @todo
-		public int updateSigmoidUnit () {
-			return 0;
+		public void sigmoidFunction(ArrayList<Integer> x) {
+			for (int i = 0; i < x.size(); i++) {
+				double output = 1.0/(1.0 + Math.exp(-(x.get(i)*this.output)));
+			}
+			this.output = output;
 		}
+
 
 	}
 
@@ -190,14 +214,14 @@ public class Dirty {
 			System.exit(2);
 		}
 		if (train && test){
-			System.out.println("plase, -train XOR -test");
+			System.out.println("please, -train XOR -test");
 			System.exit(3);
 		}else if(train){
 			ann = new ANN();
 			result = Classifier.train(ann, net_file_name);
 		}else if (test){
 			ann = new ANN(net_file_name);
-			result = Classifier.test(ann);
+			result = Classifier.test(ann, new ArrayList<String>());
 		} else {
 			System.out.println("no -train/-test argument passed");
 			System.exit(4);
