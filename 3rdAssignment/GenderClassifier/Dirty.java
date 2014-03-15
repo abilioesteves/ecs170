@@ -25,22 +25,44 @@ public class Dirty {
 		//@todo
 		public static int train(ANN ann, String net_file_name) {
 			double n = 0.05; // learning rate
-			ArrayList<Integer> input = new ArrayList<Integer>();
+			ArrayList<Double> input = new ArrayList<Double>();
 			ArrayList<String> trainingEpisodeSeq = new ArrayList<String>();
 			ArrayList<String> testEpisodeSeq = new ArrayList<String>();
 
-			// five-fold cross-validationw
-			for (int i = 0; i < 5; i++){
+			for (int i = 0; i < 5; i++){ // five-fold cross-validation
 
 				episodeSeq(i, trainingEpisodeSeq, testEpisodeSeq);
 				Iterator itr = trainingEpisodeSeq.iterator();
 
-				while(itr.hasNext()){
+				while(itr.hasNext()){ // for each training episode perfom BackPropagationAlgorithm
 					String e = (String)itr.next();
-					input.add(1); // x0 is always 1
-					input.addAll(parsePixelsToInput(e));
+					input.add(1.0); // x0 is always 1
+					double type = 0.0;
+					input.addAll(parsePixelsToInput(e, type)); 
+					ArrayList<Double> output_input = new ArrayList<Double>();
 
-					// train
+					// 1st part - Backpropagation Algorithm
+					for (int j = 0; j < NUMBEROFHIDDENUNITS; j++) {
+						ann.hidden_units.get(j).sigmoidFunction(input);
+						output_input.add(ann.hidden_units.get(j).output);
+					}
+					for (int j = 0; j < NUMBEROFOUTPUTUNITS; j++) {
+						ann.output_units.get(j).sigmoidFunction(output_input);
+					}
+					// 1st part - Backpropagation Algorithm
+
+					// 2nd part - Backpropagation Algorithm
+					double[] output_error = new double[NUMBEROFOUTPUTUNITS];
+					for (int j = 0; j < NUMBEROFOUTPUTUNITS; j++) {
+						double o = ann.output_units.get(j).output;
+						output_error[j] = o*(1.0 - o)*(type - o);
+					}
+					// 2nd part - Backpropagation Algorithm
+
+					// 3rd part - Backpropagation Algorithm
+					double[] hidden_error = new double[NUMBEROFHIDDENUNITS];
+
+					// 3rd part - Backpropagation Algorithm
 
 
 					input.clear();
@@ -61,19 +83,20 @@ public class Dirty {
 
 		// @todo: this method will parse a certain file and return an integer array with the values of each pixel over 128 
 		// (we need to normalize the values) so it fit the range -1 to 1
-		public static ArrayList<Integer> parsePixelsToInput(String inputFile) {
+		public static ArrayList<Double> parsePixelsToInput(String inputFile, Double type) {
 			return null;
 		}
 
 		// @todo
 		public static int test(ANN ann, ArrayList<String> testEpisodeSeq) {
 			Iterator itr = testEpisodeSeq.iterator();
-			ArrayList<Integer> input = new ArrayList<Integer>();
+			ArrayList<Double> input = new ArrayList<Double>();
 
 			while(itr.hasNext()){
 				String e = (String)itr.next();
-				input.add(1);
-				input.addAll(parsePixelsToInput(e));
+				double type = 0.0;
+				input.add(1.0);
+				input.addAll(parsePixelsToInput(e, type));
 
 				// test
 
@@ -166,7 +189,7 @@ public class Dirty {
 		}
 
 		// @todo
-		public void sigmoidFunction(ArrayList<Integer> x) {
+		public void sigmoidFunction(ArrayList<Double> x) {
 			for (int i = 0; i < x.size(); i++) {
 				double output = 1.0/(1.0 + Math.exp(-(x.get(i)*this.output)));
 			}
