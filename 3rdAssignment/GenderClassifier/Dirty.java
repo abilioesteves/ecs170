@@ -15,6 +15,7 @@ public class Dirty {
 	final static int NUMBEROFOUTPUTUNITS = 1;
 	final static int NUMBEROFHIDDENUNITS = 4;
 	final static int NUMBEROFINPUTS = 120*128;
+	final static double LEARNINGRATE = 0.05;
 
 	/// Classifier class
 	/**
@@ -23,53 +24,83 @@ public class Dirty {
 	public static class Classifier {
 
 		//@todo
-		public static int train(ANN ann, String net_file_name) {
+		public static void train(ANN ann, String net_file_name, ArrayList<String> trainingSeq) {
+			Iterator itr = trainingSeq.iterator();
+			ArrayList<Double> input = new ArrayList<Double>();
+			ArrayList<Double> output_input = new ArrayList<Double>();
+			double[] output_error = new double[NUMBEROFOUTPUTUNITS];
+			double[] hidden_error = new double[NUMBEROFHIDDENUNITS];
+			double type = 0.0;
+
+			while(itr.hasNext()){ // for each training episode perfom BackPropagationAlgorithm
+				String e = (String)itr.next();
+
+				input.add(1.0); // x0 is always 1
+				input.addAll(parsePixelsToInput(e, type)); 
+				output_input.add(1.0);
+
+				// 1st part - Backpropagation Algorithm
+				for (int j = 0; j < NUMBEROFHIDDENUNITS; j++) {
+					ann.hidden_units.get(j).sigmoidFunction(input);
+					output_input.add(ann.hidden_units.get(j).output);
+				}
+				for (int j = 0; j < NUMBEROFOUTPUTUNITS; j++) {
+					ann.output_units.get(j).sigmoidFunction(output_input);
+				}
+				// 1st part - Backpropagation Algorithm
+
+				// 2nd part - Backpropagation Algorithm
+				for (int j = 0; j < NUMBEROFOUTPUTUNITS; j++) {
+					double o = ann.output_units.get(j).output;
+					output_error[j] = o*(1.0 - o)*(type - o);
+				}
+				// 2nd part - Backpropagation Algorithm
+
+				// 3rd part - Backpropagation Algorithm
+				for (int j = 0; j < NUMBEROFHIDDENUNITS; j++) {
+					double sum = 0.0;
+					double h = ann.hidden_units.get(j).output;
+					for (int k = 0; k < NUMBEROFOUTPUTUNITS; k++) {
+						sum += output_error[k]*ann.output_units.get(k).weights[j+1];
+					}
+					hidden_error[j] = h*(1 - h)*sum;
+				}
+				// 3rd part - Backpropagation Algorithm
+
+				// 4th part - Backpropagation Algorithm
+					// hidden layer goes first
+				for (int j = 0; j < NUMBEROFHIDDENUNITS; j++) {
+					ann.hidden_units.get(j).updateWeights(input, hidden_error[j]);
+				}
+					// output layer by last
+				for (int j = 0; j < NUMBEROFOUTPUTUNITS; j++) {
+					ann.output_units.get(j).updateWeights(output_input, output_error[j]);
+				}
+				// 4th part - Backpropagation Algorithm
+
+				input.clear();
+				output_input.clear();
+			}
+
+			return;
+		}
+
+		public static int fiveFoldCrossValidation(ANN ann, String net_file_name) {
 			double n = 0.05; // learning rate
 			ArrayList<Double> input = new ArrayList<Double>();
 			ArrayList<String> trainingEpisodeSeq = new ArrayList<String>();
 			ArrayList<String> testEpisodeSeq = new ArrayList<String>();
 
-			for (int i = 0; i < 5; i++){ // five-fold cross-validation
+			for (int x = 0; x < 10; x++) { // ten experiments
+				for (int i = 0; i < 5; i++) { // five-fold cross-validation
 
-				episodeSeq(i, trainingEpisodeSeq, testEpisodeSeq);
-				Iterator itr = trainingEpisodeSeq.iterator();
+					episodeSeq(x+1, i+1, trainingEpisodeSeq, testEpisodeSeq);
+					
+					train(ann, net_file_name, trainingEpisodeSeq);
 
-				while(itr.hasNext()){ // for each training episode perfom BackPropagationAlgorithm
-					String e = (String)itr.next();
-					input.add(1.0); // x0 is always 1
-					double type = 0.0;
-					input.addAll(parsePixelsToInput(e, type)); 
-					ArrayList<Double> output_input = new ArrayList<Double>();
+					test(ann, testEpisodeSeq);
 
-					// 1st part - Backpropagation Algorithm
-					for (int j = 0; j < NUMBEROFHIDDENUNITS; j++) {
-						ann.hidden_units.get(j).sigmoidFunction(input);
-						output_input.add(ann.hidden_units.get(j).output);
-					}
-					for (int j = 0; j < NUMBEROFOUTPUTUNITS; j++) {
-						ann.output_units.get(j).sigmoidFunction(output_input);
-					}
-					// 1st part - Backpropagation Algorithm
-
-					// 2nd part - Backpropagation Algorithm
-					double[] output_error = new double[NUMBEROFOUTPUTUNITS];
-					for (int j = 0; j < NUMBEROFOUTPUTUNITS; j++) {
-						double o = ann.output_units.get(j).output;
-						output_error[j] = o*(1.0 - o)*(type - o);
-					}
-					// 2nd part - Backpropagation Algorithm
-
-					// 3rd part - Backpropagation Algorithm
-					double[] hidden_error = new double[NUMBEROFHIDDENUNITS];
-
-					// 3rd part - Backpropagation Algorithm
-
-
-					input.clear();
 				}
-
-				test(ann, testEpisodeSeq);
-
 			}
 
 			ann.saveNetwork(net_file_name);
@@ -77,14 +108,45 @@ public class Dirty {
 		}
 
 		// @todo: trainingEpisodeSeq and testEpisodeSeq will hold an array of file names, in the right sequence, so we can train our network and test it
-		public static void episodeSeq(int fold, ArrayList<String> trainingEpisodeSeq, ArrayList<String> testEpisodeSeq) {
+		public static void episodeSeq(int expirement, int fold, ArrayList<String> trainingEpisodeSeq, ArrayList<String> testEpisodeSeq) {
 			return;
 		}
 
 		// @todo: this method will parse a certain file and return an integer array with the values of each pixel over 128 
 		// (we need to normalize the values) so it fit the range -1 to 1
 		public static ArrayList<Double> parsePixelsToInput(String inputFile, Double type) {
-			return null;
+			ArrayList<Double> levels = new ArrayList<Double>();
+			String line = null;
+			int i, j;
+			double g;
+			char t;
+
+			try {
+				BufferedReader in = new BufferedReader(new FileReader(inputFile));
+				if(inputFile.charAt(2) == 'M')
+					type = MALE;
+				else if (inputFile.charAt(2) == 'F')
+					type = FEMALE;
+
+				while((line = in.readLine()) != null)
+				{
+					i = 0;
+					while(line.charAt(i) != '\n')
+					{
+						if(line.charAt(i) != ' ')
+						{
+							g = line.charAt(i) - '0';
+							levels.add(g/256);
+						}
+						i++;
+					}
+				}
+			} catch (IOException e)
+			{
+				System.err.print("Exception: ");
+				System.exit(1);
+			}
+			return levels;
 		}
 
 		// @todo
@@ -177,18 +239,17 @@ public class Dirty {
 	* Holds the structure and methods related to the sigmoid units
 	*/
 	public static class SigmoidUnit implements Serializable {
-		public ArrayList<Double> weights;
+		public double[] weights;
 		public double output = 0.0;
 
 		// construct the sigmoid unit weight array
 		public SigmoidUnit (int number_of_weights) {
-			this.weights = new ArrayList<Double>(number_of_weights + 1);
+			this.weights = new double[number_of_weights + 1];
 			for (int i = 0; i <= number_of_weights; i++) {
-				weights.add(0.0);
+				weights[i] = 0.0;
 			}
 		}
 
-		// @todo
 		public void sigmoidFunction(ArrayList<Double> x) {
 			for (int i = 0; i < x.size(); i++) {
 				double output = 1.0/(1.0 + Math.exp(-(x.get(i)*this.output)));
@@ -196,7 +257,11 @@ public class Dirty {
 			this.output = output;
 		}
 
-
+		public void updateWeights(ArrayList<Double> input, double error) {
+			for (int i = 0; i < this.weights.length; i++) {
+				this.weights[i] = this.weights[i] + LEARNINGRATE*error*input.get(i);
+			}
+		}
 	}
 
 	/// Program startup method
@@ -241,7 +306,7 @@ public class Dirty {
 			System.exit(3);
 		}else if(train){
 			ann = new ANN();
-			result = Classifier.train(ann, net_file_name);
+			result = Classifier.fiveFoldCrossValidation(ann, net_file_name);
 		}else if (test){
 			ann = new ANN(net_file_name);
 			result = Classifier.test(ann, new ArrayList<String>());
