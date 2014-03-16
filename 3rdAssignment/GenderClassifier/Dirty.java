@@ -90,7 +90,7 @@ public class Dirty {
 			ArrayList<Double> input = new ArrayList<Double>();
 			ArrayList<String> trainingEpisodeSeq = new ArrayList<String>();
 			ArrayList<String> testEpisodeSeq = new ArrayList<String>();
-
+			double result = 0.0;
 			for (int x = 0; x < 10; x++) { // ten experiments
 				for (int i = 0; i < 5; i++) { // five-fold cross-validation
 
@@ -98,9 +98,11 @@ public class Dirty {
 					
 					train(ann, net_file_name, trainingEpisodeSeq);
 
-					test(ann, testEpisodeSeq);
+					double partial_result = test(ann, testEpisodeSeq);
 
 				}
+				ann = null;
+				ann = new ANN();
 			}
 
 			ann.saveNetwork(net_file_name);
@@ -307,6 +309,9 @@ public class Dirty {
 		}else if(train){
 			ann = new ANN();
 			result = Classifier.fiveFoldCrossValidation(ann, net_file_name);
+			ArrayList<String> seq = new ArrayList<String>();
+			Classifier.episodeSeq(0,0,seq,null);
+			Classifer.train(ann, net_file_name, seq);
 		}else if (test){
 			ann = new ANN(net_file_name);
 			result = Classifier.test(ann, new ArrayList<String>());
