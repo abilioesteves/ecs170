@@ -16,6 +16,9 @@ public class Dirty {
 	final static int NUMBEROFHIDDENUNITS = 4;
 	final static int NUMBEROFINPUTS = 120*128;
 	final static double LEARNINGRATE = 0.05;
+	final static int NUMBEROFEXPERIMENTS = 10;
+	final static int NUMBEROFFOLDS = 5;
+	static ArrayList<ArrayList<String>> folds = new ArrayList<ArrayList<String>>(5);
 
 	/// Classifier class
 	/**
@@ -85,34 +88,50 @@ public class Dirty {
 			return;
 		}
 
-		public static int fiveFoldCrossValidation(ANN ann, String net_file_name) {
-			double n = 0.05; // learning rate
+		public static double[] fiveFoldCrossValidation(ANN ann, String net_file_name) {
+			int n = NUMBEROFEXPERIMENTS*NUMBEROFFOLDS;
 			ArrayList<Double> input = new ArrayList<Double>();
-			ArrayList<String> trainingEpisodeSeq = new ArrayList<String>();
-			ArrayList<String> testEpisodeSeq = new ArrayList<String>();
-			double result = 0.0;
-			for (int x = 0; x < 10; x++) { // ten experiments
-				for (int i = 0; i < 5; i++) { // five-fold cross-validation
+			double[] results = new double[n];
+			double mean = 0.0;
+			double[] result = new double[2];
 
-					episodeSeq(x+1, i+1, trainingEpisodeSeq, testEpisodeSeq);
-					
-					train(ann, net_file_name, trainingEpisodeSeq);
-
-					double partial_result = test(ann, testEpisodeSeq);
-
+			for (int x = 0; x < NUMBEROFEXPERIMENTS; x++) { // ten experiments
+				for (int i = 0; i < NUMBEROFFOLDS; i++) { // five-fold cross-validation
+					train(ann, net_file_name, Classifier.trainingSeq(x+1,i+1));
+					results[i + x*NUMBEROFFOLDS] = test(ann, Classifier.testingSeq(x+1,i+1));
+					mean += results[i + x*NUMBEROFFOLDS];
 				}
-				ann = null;
-				ann = new ANN();
+				ann.eraseAnn();
 			}
+			mean = mean/n;
+			result[0] = mean;
+			result[1] = Classifier.computeStandardDeviation(results, mean);
+			
+			return result ;
+		}
 
-			ann.saveNetwork(net_file_name);
-			return 0;
+		public static ArrayList<String> trainingSeq(int experiment, int fold){
+			return null;
+		}
+
+		public static ArrayList<String> testingSeq(int experiment, int fold){
+			return null;
+		}
+
+		public static double computeStandardDeviation(double[] results, double mean){
+			double sum = 0.0;
+
+			for (int i = 0; i < NUMBEROFFOLDS*NUMBEROFEXPERIMENTS; i++) {
+				sum += Math.pow(results[i] - mean,2);
+			}	
+
+			return Math.sqrt(sum/(results.length-1));
 		}
 
 		// @todo: trainingEpisodeSeq and testEpisodeSeq will hold an array of file names, in the right sequence, so we can train our network and test it
-		public static void episodeSeq(int expirement, int fold, ArrayList<String> trainingEpisodeSeq, ArrayList<String> testEpisodeSeq) {
-			return;
-		}
+		// public static void episodeSeq(int expirement, int fold, ArrayList<String> trainingEpisodeSeq, ArrayList<String> testEpisodeSeq) {
+		// 	return;
+		// }
 
 		// @todo: this method will parse a certain file and return an integer array with the values of each pixel over 128 
 		// (we need to normalize the values) so it fit the range -1 to 1
@@ -234,6 +253,10 @@ public class Dirty {
 				System.exit(7);
 			}
 		}
+
+		public void eraseAnn(){
+
+		}
 	}
 
 	/// Sigmoid unit class
@@ -274,7 +297,8 @@ public class Dirty {
 		ANN ann;
 		String net_file_name = "ANNProperties";
 		boolean train = false, test = false;
-		int i = 0, result = 0;
+		int i = 0;
+		double[] result = new double[2];
 		try{
 			while (i < args.length){
 				if (args[i].equalsIgnoreCase("-train")) {
@@ -309,12 +333,13 @@ public class Dirty {
 		}else if(train){
 			ann = new ANN();
 			result = Classifier.fiveFoldCrossValidation(ann, net_file_name);
-			ArrayList<String> seq = new ArrayList<String>();
-			Classifier.episodeSeq(0,0,seq,null);
-			Classifer.train(ann, net_file_name, seq);
+			// report the result
+			// ArrayList<String> seq = new ArrayList<String>();
+			// Classifier.episodeSeq(0,0,seq,null);
+			Classifier.train(ann, net_file_name, Classifier.trainingSeq(0,0));
 		}else if (test){
 			ann = new ANN(net_file_name);
-			result = Classifier.test(ann, new ArrayList<String>());
+			Classifier.test(ann, Classifier.testingSeq(0,0));
 		} else {
 			System.out.println("no -train/-test argument passed");
 			System.exit(4);
