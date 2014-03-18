@@ -112,9 +112,69 @@ public class Dirty {
 			return result ;
 		}
 
-		public static void createFolds() {
+		
+public static void createFolds()
+{
+	File[] malePaths;		//these four need to be stored outside of function
+	File[] femPaths;
+//	int[] mfold;
+//	int[] ffold;
+	String mstr;
+//	String fstr;
+	String e;
 
+	File m = null;
+	File f = null;
+	int[] fnums = new int[5];
+	int i,j,temp, ind;
+	Random rand = new Random();
+	ArrayList<String> allPaths = new ArrayList<String>();
+
+	m = new File("./Male/");		//create list of files in each directory
+	malePaths = m.listFiles();
+	f = new File("./Female/");
+	femPaths = f.listFiles();
+
+//	mfold = new int[malePaths.length()];	//hold fold number for males/females
+//	ffold = new int[femPaths.length()];
+
+	for(File t1:malePaths)
+	{
+		mstr = ("./Male/");
+		mstr.concat(t1.getName());
+		allPaths.add(mstr);
+	}
+	for(File t2:femPaths)
+	{
+		mstr = ("./Female/");
+		mstr.concat(t2.getName());
+		allPaths.add(mstr);
+	}
+//	allFolds = new int[allPaths.length()];
+
+	for (int n = 1; n < 6; n++)
+		fnums[n] = n;
+	i = 5;					//length
+	while (i > 0)				//shuffle
+	{
+		j = (int)Math.floor(Math.random() * (i+1));
+		temp = fnums[i];
+		fnums[i] = fnums[j];
+		fnums[j] = temp;
+		i--;
+	}
+
+	Iterator itr = allPaths.iterator();
+	while(itr.hasNext())				//fill fold array with shuffled values (1-5)
+	{
+		for(i = 0; i < 5; i++)
+		{
+			e = (String)itr.next();
+			ind = fnums[i];
+			folds.get(ind).add(e);
 		}
+	}
+}
 
 		public static ArrayList<String> trainingSeq(int fold){
 			ArrayList<String> l = new ArrayList<String>();
