@@ -129,20 +129,20 @@ public class Dirty {
 			f = new File("./Female/");
 			femPaths = f.listFiles();
 
-			//	mfold = new int[malePaths.length()];	//hold fold number for males/females
-			//	ffold = new int[femPaths.length()];
-
 			for(File t1:malePaths) {
-				mstr = ("./Male/");
-				mstr.concat(t1.getName());
-				allPaths.add(mstr);
+				if (t1.getName().charAt(0) != 'a'){
+					mstr = ("./Male/");
+					mstr = mstr + t1.getName();
+					allPaths.add(mstr);
+				}
 			}
 			for(File t2:femPaths) {
-				mstr = ("./Female/");
-				mstr.concat(t2.getName());
-				allPaths.add(mstr);
+				if (t2.getName().charAt(0) != 'b'){
+					mstr = ("./Female/");
+					mstr = mstr + t2.getName();
+					allPaths.add(mstr);
+				}
 			}
-			//	allFolds = new int[allPaths.length()];
 
 			for (int n = 0; n < 5; n++)
 				fnums[n] = n;
@@ -158,8 +158,8 @@ public class Dirty {
 
 			Iterator itr = allPaths.iterator();
 			while (itr.hasNext()) {
+				e = (String)itr.next();
 				for(i = 0; i < 5; i++) {
-					e = (String)itr.next();
 					ind = fnums[i];
 					folds.get(ind).add(e);
 				}
@@ -176,6 +176,19 @@ public class Dirty {
 		}
 
 		public static ArrayList<String> testingSeq(int fold){
+			if (fold == 0){
+				File t = new File("./Female/");;
+				File[] paths = t.listFiles();
+				ArrayList<String> allPaths = new ArrayList<String>();
+				for(File p:paths) {
+					if (p.getName().charAt(0) != 'b'){
+						String str = ("./Female/");
+						str = str + p.getName();
+						allPaths.add(str);
+					}
+				}
+				return allPaths;
+			}
 			return folds.get(fold);
 		}
 
@@ -207,15 +220,11 @@ public class Dirty {
 
 				while((line = in.readLine()) != null)
 				{
-					i = 0;
-					while(line.charAt(i) != '\n')
-					{
-						if(line.charAt(i) != ' ')
-						{
-							g = line.charAt(i) - '0';
-							levels.add(g/256.0);
-						}
-						i++;
+					Scanner scanner = new Scanner(line);
+					scanner.useDelimiter(" ");
+					while (scanner.hasNext()){
+						String result = (String)scanner.next();
+						levels.add(Double.parseDouble(result)/256.0);
 					}
 				}
 			} catch (IOException e)
@@ -442,7 +451,5 @@ public class Dirty {
 			System.out.println("no -train/-test argument passed");
 			System.exit(4);
 		}
-
-		System.out.println("result = " + result);
 	}
 }
