@@ -27,7 +27,7 @@ public class Dirty {
 	public static class Classifier {
 
 		//@todo
-		public static void train(ANN ann, String net_file_name, ArrayList<String> trainingSeq) {
+		public static void train(ANN ann, ArrayList<String> trainingSeq) {
 			Iterator itr = trainingSeq.iterator();
 			ArrayList<Double> input = new ArrayList<Double>();
 			ArrayList<Double> output_input = new ArrayList<Double>();
@@ -88,7 +88,7 @@ public class Dirty {
 			return;
 		}
 
-		public static double[] fiveFoldCrossValidation(ANN ann, String net_file_name) {
+		public static double[] fiveFoldCrossValidation(ANN ann) {
 			int n = NUMBEROFEXPERIMENTS*NUMBEROFFOLDS;
 			ArrayList<Double> input = new ArrayList<Double>();
 			double[] results = new double[n];
@@ -98,11 +98,12 @@ public class Dirty {
 			for (int x = 0; x < NUMBEROFEXPERIMENTS; x++) { // ten experiments
 				Classifier.createFolds();
 				for (int i = 0; i < NUMBEROFFOLDS; i++) { // five-fold cross-validation
-					train(ann, net_file_name, Classifier.trainingSeq(i+1));
+					train(ann, Classifier.trainingSeq(i+1));
 					results[i + x*NUMBEROFFOLDS] = test(ann, Classifier.testingSeq(i+1));
 					mean += results[i + x*NUMBEROFFOLDS];
 				}
 				ann.clear();
+				folds.clear();
 			}
 			mean = mean/n;
 			result[0] = mean;
@@ -111,11 +112,15 @@ public class Dirty {
 			return result ;
 		}
 
+		public static void createFolds() {
+
+		}
+
 		public static ArrayList<String> trainingSeq(int fold){
 			ArrayList<String> l = new ArrayList<String>();
-			for (int i = 5; i > 0; i--) {
+			for (int i = NUMBEROFFOLDS; i > 0; i--) {
 				if (i != fold)
-					l.addAll(folds.get(i));
+					l.addAll(folds.get(i-1));
 			}
 			return l;
 		}
@@ -134,17 +139,12 @@ public class Dirty {
 			return Math.sqrt(sum/(results.length-1));
 		}
 
-		// @todo: trainingEpisodeSeq and testEpisodeSeq will hold an array of file names, in the right sequence, so we can train our network and test it
-		// public static void episodeSeq(int expirement, int fold, ArrayList<String> trainingEpisodeSeq, ArrayList<String> testEpisodeSeq) {
-		// 	return;
-		// }
-
-		// @todo: this method will parse a certain file and return an integer array with the values of each pixel over 128 
+		// this method will parse a certain file and return an integer array with the values of each pixel over 256
 		// (we need to normalize the values) so it fit the range -1 to 1
 		public static ArrayList<Double> parsePixelsToInput(String inputFile, Double type) {
 			ArrayList<Double> levels = new ArrayList<Double>();
 			String line = null;
-			int i, j;
+			int i;
 			double g;
 			char t;
 
@@ -163,7 +163,7 @@ public class Dirty {
 						if(line.charAt(i) != ' ')
 						{
 							g = line.charAt(i) - '0';
-							levels.add(g/256);
+							levels.add(g/256.0);
 						}
 						i++;
 					}
@@ -176,7 +176,7 @@ public class Dirty {
 			return levels;
 		}
 
-		// @todo
+		// 
 		public static int test(ANN ann, ArrayList<String> testingSeq) {
 			Iterator itr = testingSeq.iterator();
 			ArrayList<Double> input = new ArrayList<Double>();
@@ -304,7 +304,7 @@ public class Dirty {
 		public Random g = new Random();
 
 		// construct the sigmoid unit weight array
-		public SigmoidUnit (int number_of_weights) {
+		public SigmoidUnit(int number_of_weights) {
 			this.weights = new double[number_of_weights + 1];
 			for (int i = 0; i <= number_of_weights; i++) { // we need one more weight for the biased term
 				this.weights[i] = this.g.nextGaussian();
@@ -377,9 +377,10 @@ public class Dirty {
 			System.exit(3);
 		}else if(train){
 			ann = new ANN();
-			result = Classifier.fiveFoldCrossValidation(ann, net_file_name);
+			result = Classifier.fiveFoldCrossValidation(ann);
 			System.out.println("Mean: " + result[0] + "Standard Deviation: " + result[1]);
-			Classifier.train(ann, net_file_name, Classifier.trainingSeq(0));
+			Classifier.train(ann, Classifier.trainingSeq(0));
+			ann.saveNetwork(net_file_name);
 		}else if (test){
 			ann = new ANN(net_file_name);
 			Classifier.test(ann, Classifier.testingSeq(0));
