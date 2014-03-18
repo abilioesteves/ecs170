@@ -96,12 +96,13 @@ public class Dirty {
 			double[] result = new double[2];
 
 			for (int x = 0; x < NUMBEROFEXPERIMENTS; x++) { // ten experiments
+				Classifier.createFolds();
 				for (int i = 0; i < NUMBEROFFOLDS; i++) { // five-fold cross-validation
-					train(ann, net_file_name, Classifier.trainingSeq(x+1,i+1));
-					results[i + x*NUMBEROFFOLDS] = test(ann, Classifier.testingSeq(x+1,i+1));
+					train(ann, net_file_name, Classifier.trainingSeq(i+1));
+					results[i + x*NUMBEROFFOLDS] = test(ann, Classifier.testingSeq(i+1));
 					mean += results[i + x*NUMBEROFFOLDS];
 				}
-				ann.eraseAnn();
+				ann.clear();
 			}
 			mean = mean/n;
 			result[0] = mean;
@@ -110,12 +111,17 @@ public class Dirty {
 			return result ;
 		}
 
-		public static ArrayList<String> trainingSeq(int experiment, int fold){
-			return null;
+		public static ArrayList<String> trainingSeq(int fold){
+			ArrayList<String> l = new ArrayList<String>();
+			for (int i = 5; i > 0; i--) {
+				if (i != fold)
+					l.addAll(folds.get(i));
+			}
+			return l;
 		}
 
-		public static ArrayList<String> testingSeq(int experiment, int fold){
-			return null;
+		public static ArrayList<String> testingSeq(int fold){
+			return folds.get(fold);
 		}
 
 		public static double computeStandardDeviation(double[] results, double mean){
@@ -171,19 +177,29 @@ public class Dirty {
 		}
 
 		// @todo
-		public static int test(ANN ann, ArrayList<String> testEpisodeSeq) {
-			Iterator itr = testEpisodeSeq.iterator();
+		public static int test(ANN ann, ArrayList<String> testingSeq) {
+			Iterator itr = testingSeq.iterator();
 			ArrayList<Double> input = new ArrayList<Double>();
+			ArrayList<Double> output_input = new ArrayList<Double>();
 
 			while(itr.hasNext()){
 				String e = (String)itr.next();
 				double type = 0.0;
-				input.add(1.0);
+				input.add(1.0); // biased term
 				input.addAll(parsePixelsToInput(e, type));
 
-				// test
+				for (int j = 0; j < NUMBEROFHIDDENUNITS; j++) {
+					ann.hidden_units.get(j).sigmoidFunction(input);
+					output_input.add(ann.hidden_units.get(j).output);
+				}
+				for (int j = 0; j < NUMBEROFOUTPUTUNITS; j++) {
+					ann.output_units.get(j).sigmoidFunction(output_input);
+				}
+
+				Classifier.report(ann);
 
 				input.clear();
+				output_input.clear();
 			}
 			
 			// code block for debugging
@@ -202,6 +218,19 @@ public class Dirty {
 			return -1;
 		}
 
+		// The whole algorithm was made as general as possible. This is the only method that actually ignores the constant for the number of output units.
+		// In case of change in the number of output units, this method MUST be changed.
+		// The confidence here calculated is simply the output/(MALE OR FEMALE - depending on the case)
+		// if output = 0 (which is very unlikely), we have an UNDECIDABLE result (this is often related to some error in the algorithm)
+		public static void report(ANN ann) {
+			if(ann.output_units.get(0).output > 0.0) {
+				System.out.println("MALE " + ann.output_units.get(0).output/MALE);
+			} else if (ann.output_units.get(0).output < 0.0) {
+				System.out.println("FEMALE " + ann.output_units.get(0).output/(FEMALE));
+			} else {
+				System.out.println("UNIDECIDABLE " + 0.0);
+			}
+		}
 	}
 
 	/**
@@ -254,8 +283,14 @@ public class Dirty {
 			}
 		}
 
-		public void eraseAnn(){
-
+		// clear the values for the network, without calling garbage collector.
+		public void clear(){
+			for (int i = 0; i < NUMBEROFOUTPUTUNITS; i++) {
+				output_units.clear();
+			}
+			for (int i = 0; i< NUMBEROFHIDDENUNITS; i++) {
+				hidden_units.clear();
+			}
 		}
 	}
 
@@ -266,26 +301,36 @@ public class Dirty {
 	public static class SigmoidUnit implements Serializable {
 		public double[] weights;
 		public double output = 0.0;
+		public Random g = new Random();
 
 		// construct the sigmoid unit weight array
 		public SigmoidUnit (int number_of_weights) {
 			this.weights = new double[number_of_weights + 1];
-			for (int i = 0; i <= number_of_weights; i++) {
-				weights[i] = 0.0;
+			for (int i = 0; i <= number_of_weights; i++) { // we need one more weight for the biased term
+				this.weights[i] = this.g.nextGaussian();
 			}
 		}
 
-		public void sigmoidFunction(ArrayList<Double> x) {
-			for (int i = 0; i < x.size(); i++) {
-				double output = 1.0/(1.0 + Math.exp(-(x.get(i)*this.output)));
+		public void sigmoidFunction(ArrayList<Double> input) {
+			double sum = 0.0;
+			for (int i = 0; i < input.size(); i++) {
+				sum = input.get(i)*this.weights[i]; // scalar product
 			}
-			this.output = output;
+			this.output	= 1.0/(1.0 + Math.exp(-(sum)));
 		}
 
 		public void updateWeights(ArrayList<Double> input, double error) {
 			for (int i = 0; i < this.weights.length; i++) {
 				this.weights[i] = this.weights[i] + LEARNINGRATE*error*input.get(i);
 			}
+		}
+
+		// clear the values for the sigmoidUnit, without calling garbage collector.
+		public void clear(){
+			for (int i = 0; i <= this.weights.length; i++) { // we need one more weight for the biased term
+				this.weights[i] = this.g.nextGaussian();
+			}
+			this.output = 0.0;
 		}
 	}
 
@@ -333,13 +378,11 @@ public class Dirty {
 		}else if(train){
 			ann = new ANN();
 			result = Classifier.fiveFoldCrossValidation(ann, net_file_name);
-			// report the result
-			// ArrayList<String> seq = new ArrayList<String>();
-			// Classifier.episodeSeq(0,0,seq,null);
-			Classifier.train(ann, net_file_name, Classifier.trainingSeq(0,0));
+			System.out.println("Mean: " + result[0] + "Standard Deviation: " + result[1]);
+			Classifier.train(ann, net_file_name, Classifier.trainingSeq(0));
 		}else if (test){
 			ann = new ANN(net_file_name);
-			Classifier.test(ann, Classifier.testingSeq(0,0));
+			Classifier.test(ann, Classifier.testingSeq(0));
 		} else {
 			System.out.println("no -train/-test argument passed");
 			System.exit(4);
