@@ -6,7 +6,7 @@ import java.io.*;
 /**
 * Due to assignment constraints, all classes will be nested to this class.
 *
-* @author Abilio Oliveira and James Dryden
+* @author Abilio Oliveira (999550263) and James Dryden (993063613)
 */
 
 public class Dirty { 
@@ -15,10 +15,11 @@ public class Dirty {
 	final static int NUMBEROFOUTPUTUNITS = 1;
 	final static int NUMBEROFHIDDENUNITS = 4;
 	final static int NUMBEROFINPUTS = 120*128;
-	final static double LEARNINGRATE = 0.05;
+	final static double LEARNINGRATE = 0.7;
 	final static int NUMBEROFEXPERIMENTS = 10;
 	final static int NUMBEROFFOLDS = 5;
 	static ArrayList<ArrayList<String>> folds = new ArrayList<ArrayList<String>>(5);
+	static double type = 0.0;
 
 	/// Classifier class
 	/**
@@ -33,13 +34,12 @@ public class Dirty {
 			ArrayList<Double> output_input = new ArrayList<Double>();
 			double[] output_error = new double[NUMBEROFOUTPUTUNITS];
 			double[] hidden_error = new double[NUMBEROFHIDDENUNITS];
-			double type = 0.0;
 
 			while(itr.hasNext()){ // for each training episode perfom BackPropagationAlgorithm
 				String e = (String)itr.next();
 
 				input.add(1.0); // x0 is always 1
-				input.addAll(parsePixelsToInput(e, type)); 
+				input.addAll(parsePixelsToInput(e));	
 				output_input.add(1.0);
 
 				// 1st part - Backpropagation Algorithm
@@ -89,25 +89,34 @@ public class Dirty {
 		}
 
 		public static double[] fiveFoldCrossValidation(ANN ann) {
-			int n = NUMBEROFEXPERIMENTS*NUMBEROFFOLDS;
 			ArrayList<Double> input = new ArrayList<Double>();
-			double[] results = new double[n];
+			double[] results = new double[NUMBEROFFOLDS];
 			double mean = 0.0;
+			double std = 0.0;
 			double[] result = new double[2];
 
 			for (int x = 0; x < NUMBEROFEXPERIMENTS; x++) { // ten experiments
 				Classifier.createFolds();
-				for (int i = 0; i < NUMBEROFFOLDS; i++) { // five-fold cross-validation
+				// System.out.println("experiment " + x + '\n');
+				for (int i = 0; i < NUMBEROFFOLDS; i++) { // five-fold cross-validation					
+					// System.out.println("fold " + i + '\n');
 					train(ann, Classifier.trainingSeq(i+1));
-					results[i + x*NUMBEROFFOLDS] = test(ann, Classifier.testingSeq(i+1));
-					mean += results[i + x*NUMBEROFFOLDS];
+					test(ann, Classifier.testingSeq(i+1), false);
+
+					results[i] = ann.output_units.get(0).output;
+					mean += results[i];
+					ann = null;
+					ann = new ANN();
 				}
-				ann.clear();
 				folds.clear();
+				for (int i = 0; i < NUMBEROFFOLDS; i++) {
+					folds.add(new ArrayList<String>());
+				}
+				mean = mean/NUMBEROFFOLDS;
+				std = Classifier.computeStandardDeviation(results, mean);
+				System.out.println("Experiment " + (x + 1) + " Mean " + mean + " Standard Deviation " + std);
+
 			}
-			mean = mean/n;
-			result[0] = mean;
-			result[1] = Classifier.computeStandardDeviation(results, mean);
 			
 			return result ;
 		}
@@ -155,13 +164,12 @@ public class Dirty {
 				e = (String)itr.next();
 				for(i = 0; i < 5; i++) {
 					ind = fnums[i];
-			//		System.out.println(e);
+					// System.out.println(e);
 					folds.get(ind).add(e);
 					if(itr.hasNext())
-					{
 						e = (String)itr.next();
-						continue;
-					}
+					else
+						break;
 				}
 			}
 		}
@@ -177,25 +185,23 @@ public class Dirty {
 
 		public static ArrayList<String> testingSeq(int fold){
 			if (fold == 0){
-				File t = new File("./Female/");;
+				File t = new File("./Test/");;
 				File[] paths = t.listFiles();
 				ArrayList<String> allPaths = new ArrayList<String>();
 				for(File p:paths) {
-					if (p.getName().charAt(0) != 'b'){
-						String str = ("./Female/");
-						str = str + p.getName();
-						allPaths.add(str);
-					}
+					String str = ("./Test/");
+					str = str + p.getName();
+					allPaths.add(str);
 				}
 				return allPaths;
 			}
-			return folds.get(fold);
+			return folds.get(fold-1);
 		}
 
 		public static double computeStandardDeviation(double[] results, double mean){
 			double sum = 0.0;
 
-			for (int i = 0; i < NUMBEROFFOLDS*NUMBEROFEXPERIMENTS; i++) {
+			for (int i = 0; i < NUMBEROFFOLDS; i++) {
 				sum += Math.pow(results[i] - mean,2);
 			}	
 
@@ -204,7 +210,7 @@ public class Dirty {
 
 		// this method will parse a certain file and return an integer array with the values of each pixel over 256
 		// (we need to normalize the values) so it fit the range -1 to 1
-		public static ArrayList<Double> parsePixelsToInput(String inputFile, Double type) {
+		public static ArrayList<Double> parsePixelsToInput(String inputFile) {
 			ArrayList<Double> levels = new ArrayList<Double>();
 			String line = null;
 			int i;
@@ -236,7 +242,7 @@ public class Dirty {
 		}
 
 		// 
-		public static int test(ANN ann, ArrayList<String> testingSeq) {
+		public static int test(ANN ann, ArrayList<String> testingSeq, boolean print) {
 			Iterator itr = testingSeq.iterator();
 			ArrayList<Double> input = new ArrayList<Double>();
 			ArrayList<Double> output_input = new ArrayList<Double>();
@@ -245,7 +251,7 @@ public class Dirty {
 				String e = (String)itr.next();
 				double type = 0.0;
 				input.add(1.0); // biased term
-				input.addAll(parsePixelsToInput(e, type));
+				input.addAll(parsePixelsToInput(e));
 
 				for (int j = 0; j < NUMBEROFHIDDENUNITS; j++) {
 					ann.hidden_units.get(j).sigmoidFunction(input);
@@ -255,26 +261,14 @@ public class Dirty {
 					ann.output_units.get(j).sigmoidFunction(output_input);
 				}
 
-				Classifier.report(ann);
+				if (print)
+					Classifier.report(ann);
 
 				input.clear();
 				output_input.clear();
 			}
 			
-			// code block for debugging
-			/*for (int i = 0; i < NUMBEROFOUTPUTUNITS; i++) {
-				System.out.println("\n\n output " + i + " " + ann.output_units.get(i).output + "\n\t");
-				for (int j = 0; j <= NUMBEROFHIDDENUNITS; j++){
-					System.out.print(ann.output_units.get(i).weights.get(j) + " ");
-				}
-			}
-			for (int i = 0; i< NUMBEROFHIDDENUNITS; i++) {
-				System.out.println("\n\n hidden unit " + i + " " + ann.hidden_units.get(i).output +"\n\t");
-				for (int j = 0; j <= NUMBEROFINPUTS; j++){
-					System.out.print(ann.hidden_units.get(i).weights.get(j) + " ");
-				}
-			}*/
-			return -1;
+			return 0;
 		}
 
 		// The whole algorithm was made as general as possible. This is the only method that actually ignores the constant for the number of output units.
@@ -282,12 +276,10 @@ public class Dirty {
 		// The confidence here calculated is simply the output/(MALE OR FEMALE - depending on the case)
 		// if output = 0 (which is very unlikely), we have an UNDECIDABLE result (this is often related to some error in the algorithm)
 		public static void report(ANN ann) {
-			if(ann.output_units.get(0).output > 0.0) {
-				System.out.println("MALE " + ann.output_units.get(0).output/MALE);
-			} else if (ann.output_units.get(0).output < 0.0) {
-				System.out.println("FEMALE " + ann.output_units.get(0).output/(FEMALE));
+			if(ann.output_units.get(0).output > 0.45) {
+				System.out.println("MALE " + (ann.output_units.get(0).output)/0.9);
 			} else {
-				System.out.println("UNIDECIDABLE " + 0.0);
+				System.out.println("FEMALE " + (1.0 - ann.output_units.get(0).output)/0.9);
 			}
 		}
 	}
@@ -342,15 +334,6 @@ public class Dirty {
 			}
 		}
 
-		// clear the values for the network, without calling garbage collector.
-		public void clear(){
-			for (int i = 0; i < NUMBEROFOUTPUTUNITS; i++) {
-				output_units.clear();
-			}
-			for (int i = 0; i< NUMBEROFHIDDENUNITS; i++) {
-				hidden_units.clear();
-			}
-		}
 	}
 
 	/// Sigmoid unit class
@@ -366,14 +349,14 @@ public class Dirty {
 		public SigmoidUnit(int number_of_weights) {
 			this.weights = new double[number_of_weights + 1];
 			for (int i = 0; i <= number_of_weights; i++) { // we need one more weight for the biased term
-				this.weights[i] = this.g.nextGaussian();
+				this.weights[i] = g.nextDouble() - g.nextDouble();
 			}
 		}
 
 		public void sigmoidFunction(ArrayList<Double> input) {
 			double sum = 0.0;
 			for (int i = 0; i < input.size(); i++) {
-				sum = input.get(i)*this.weights[i]; // scalar product
+				sum += input.get(i)*this.weights[i]; // scalar product
 			}
 			this.output	= 1.0/(1.0 + Math.exp(-(sum)));
 		}
@@ -382,14 +365,6 @@ public class Dirty {
 			for (int i = 0; i < this.weights.length; i++) {
 				this.weights[i] = this.weights[i] + LEARNINGRATE*error*input.get(i);
 			}
-		}
-
-		// clear the values for the sigmoidUnit, without calling garbage collector.
-		public void clear(){
-			for (int i = 0; i <= this.weights.length; i++) { // we need one more weight for the biased term
-				this.weights[i] = this.g.nextGaussian();
-			}
-			this.output = 0.0;
 		}
 	}
 
@@ -400,7 +375,7 @@ public class Dirty {
 	public static void main(String[] args) {
 		ANN ann;
 		String net_file_name = "ANNProperties";
-		boolean train = false, test = false;
+		boolean train = false, test = false, view = true;
 		int i = 0;
 		double[] result = new double[2];
 		try{
@@ -419,7 +394,11 @@ public class Dirty {
 						net_file_name = "ANNProperties";
 					}
 					i+=2;
-				} else {
+				} else if(args[i].equalsIgnoreCase("-view")){
+					i++;
+					view = true;
+
+				}else {
 					i++;
 					throw new IllegalArgumentException("not known argument");
 				}
@@ -440,16 +419,33 @@ public class Dirty {
 				folds.add(new ArrayList<String>());
 			}
 			// result = Classifier.fiveFoldCrossValidation(ann);
-			// System.out.println("Mean: " + result[0] + "Standard Deviation: " + result[1]);
 			Classifier.createFolds();
 			Classifier.train(ann, Classifier.trainingSeq(0));
 			ann.saveNetwork(net_file_name);
 		}else if (test){
 			ann = new ANN(net_file_name);
-			Classifier.test(ann, Classifier.testingSeq(0));
-		} else {
+			Classifier.test(ann, Classifier.testingSeq(0), true);
+		} else if (view){
+			ann = new ANN(net_file_name);
+			viewNetwork(ann);
+		}else {
 			System.out.println("no -train/-test argument passed");
 			System.exit(4);
+		}
+	}
+	public static void viewNetwork(ANN ann){
+		
+		for (int i = 0; i< NUMBEROFHIDDENUNITS; i++) {
+			System.out.println("\n\n hidden unit " + i + "\n\t");
+			for (int j = 0; j <= NUMBEROFINPUTS; j++){
+				System.out.print(ann.hidden_units.get(i).weights[j] + " ");
+			}
+		}
+		for (int i = 0; i < NUMBEROFOUTPUTUNITS; i++) {
+			System.out.println("\n\n output \n\t");
+			for (int j = 0; j <= NUMBEROFHIDDENUNITS; j++){
+				System.out.print("\t " + ann.output_units.get(i).weights[j] + " ");
+			}
 		}
 	}
 }
