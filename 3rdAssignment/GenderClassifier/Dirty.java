@@ -96,9 +96,7 @@ public class Dirty {
 			double[] result = new double[2];
 
 			for (int x = 0; x < NUMBEROFEXPERIMENTS; x++) { // ten experiments
-				System.out.println("Fold " + x);
 				Classifier.createFolds();
-				System.out.println(folds.get(x) + "\n");
 				for (int i = 0; i < NUMBEROFFOLDS; i++) { // five-fold cross-validation
 					train(ann, Classifier.trainingSeq(i+1));
 					results[i + x*NUMBEROFFOLDS] = test(ann, Classifier.testingSeq(i+1));
@@ -150,13 +148,14 @@ public class Dirty {
 				fnums[n] = n;
 
 			Collections.shuffle(Arrays.asList(fnums));
+			Collections.shuffle(allPaths);
 
 			Iterator itr = allPaths.iterator();
 			while (itr.hasNext()) {
 				e = (String)itr.next();
 				for(i = 0; i < 5; i++) {
 					ind = fnums[i];
-				//	System.out.println(e);
+			//		System.out.println(e);
 					folds.get(ind).add(e);
 					if(itr.hasNext())
 					{
