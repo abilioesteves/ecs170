@@ -20,16 +20,16 @@ To compile:
 To try out our AI implementation, with the division heuristics, go to the src folder and:
  1. Make sure that in the `getCost()` method in TerrainMap.java the *line 285* is commented, and the *line 284* is uncommented;
  2. Compile;
- 3. Then go to the terminal and run:
+ 3. Then, on the terminal:
   ```
-   java Main AStarDiv_993083613_999550263.java
+   <source path>$: java Main AStarDiv_993083613_999550263.java
   ```
  
 To try out our AI implementation, with the exponential heuristics, go to the src folder and:
  1. Make sure that in the `getCost()` method in TerrainMap.java the *line 284* is commented, and the *line 285* is uncommented;
  2. Compile;
- 3. Then go to the terminal and run:
+ 3. Then, on the terminal:
   ```
-   java Main AStarExp_993083613_999550263.java
+   <source path>$: java Main AStarExp_993083613_999550263.java
   ```
 
