@@ -1,8 +1,10 @@
 Objectives
 =======
-The assignment is to create a Connect Four AI player in two versions:
+The assignment was to create a Connect Four AI player in two versions:
   1. over the MinMax algorithm;
   2. over the Alpha-beta prunning algorithm.
+
+Both algorithms were presented to us in the Book *Artificial Intelligence: A Modern Approach (3rd Edition)* and in class.
 
 Details
 =======
