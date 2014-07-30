@@ -1,2 +1,7 @@
 *.class
 *.DS_Store
+*.java~
+*.config
+*html*
+*.predictions
+*.pdf
