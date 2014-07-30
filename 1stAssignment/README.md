@@ -1,6 +1,6 @@
 Objectives
 =======
-The assignment is to create an implementation of the AIModule interface that computes a path from the start location to the end location while minimizing the total search space.
+The assignment is to create an implementation of the AIModule interface that computes a path from the start location to the end location while minimizing the total search space. We should implement the *A star* algorithm presented to us in the Book *Artificial Intelligence: A Modern Approach (3rd Edition)* and in class.
 
 Details
 =======
