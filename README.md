@@ -13,4 +13,4 @@ Given an arbitrary 3-dimensional map, a start point and an end point, how to eff
 
 [3rd Assignment](https://github.com/abiliooliveira/ecs170/tree/master/3rdAssignment):
 
-Given a human face picture, is it possible to create an algorithm that decides if the face is man's or woman's? In this assignment a Neural Network is implemented in Java that decides, with some accuracy percentage, if an encoded face picture is man's or woman's. Here we exercise the third pillar of AI: **Learning**
+Given a human face picture, is it possible to create an algorithm that decides if the face is man's or woman's? In this assignment a Neural Network is implemented in Java that decides, with some accuracy percentage, if an encoded face picture is from a male or female character. Here we exercise the third pillar of AI: **Learning**
