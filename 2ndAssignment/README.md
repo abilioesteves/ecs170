@@ -19,3 +19,12 @@ To compile:
  javac <src_path>/*.java
 ```
 
+To try out our implementation, go to the terminal:`$<source path>/:` and run:
+```
+java main -p1 DirtyAI2 -p2 <another player>
+```
+or
+```
+java main -p1 ABDirtyAI3 -p2 <another player>
+```
+Where the another player can be yourself, or another AI.
