@@ -1,5 +1,4 @@
-Introduction to Artificial Intelligence
-ecs 170 - UC Davis
+ecs 170 - Introduction to Artificial Intelligence, UC Davis
 ======
 This repository holds the programming assignments files from ecs 170. 
 
