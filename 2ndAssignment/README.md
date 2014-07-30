@@ -19,7 +19,7 @@ To compile:
  javac <src_path>/*.java
 ```
 
-To try out our implementation, go to the terminal:`$<source path>/:` and run:
+To try out our implementation, on the terminal go to:`<source path>$:` and run:
 ```
 java main -p1 DirtyAI2 -p2 <another player>
 ```
